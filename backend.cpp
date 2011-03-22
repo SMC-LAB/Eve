@@ -27,7 +27,7 @@ MarBackend::MarBackend()
 	playbacknet->addMarSystem(mng.create("SoundFileSource", "src"));
 	playbacknet->addMarSystem(mng.create("Gain", "gain"));
 	playbacknet->addMarSystem(mng.create("AudioSink", "dest"));
-	playbacknet->updctrl("AudioSink/dest/mrs_bool/initAudio", true);
+	playbacknet->updControl("AudioSink/dest/mrs_bool/initAudio", true);
 
 // wrap it up to make it pretend to be a Qt object:
 	mrsWrapper = new MarSystemQtWrapper(playbacknet);
@@ -68,4 +68,3 @@ void MarBackend::getBackendPosition()
 	mrs_natural newPos = (mrs_natural) positionPtr->to<mrs_natural>();
 	emit changedBackendPosition(newPos);
 }
-
