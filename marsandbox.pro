@@ -15,3 +15,4 @@ win32-msvc2005:LIBS += marsyas.lib marsyasqt.lib
 unix:LIBS += -lmarsyas -lmarsyasqt -L$$QMAKE_DIR
 macx:LIBS += -framework CoreAudio -framework CoreMidi -framework CoreFoundation
 unix:!macx:LIBS += -lasound
+
