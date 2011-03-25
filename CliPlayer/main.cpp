@@ -6,7 +6,7 @@ using namespace std;
 void play(string fileName)
 {
     MarSystemManager mng;
-    MarSystem* net= mng.create("Series", "net");
+    MarSystem* net = mng.create("Series", "net");
 
     net->addMarSystem(mng.create("SoundFileSource", "src"));
     net->addMarSystem(mng.create("Gain", "gt"));
@@ -15,7 +15,7 @@ void play(string fileName)
     net->updControl("SoundFileSource/src/mrs_string/filename", fileName);
     net->updControl("SoundFileSource/src/mrs_natural/pos", 0);
     net->updControl("AudioSink/dest/mrs_bool/initAudio", true);
-    
+
     while (net->getctrl("SoundFileSource/src/mrs_bool/hasData")->isTrue()) {
         net->tick();
     }
