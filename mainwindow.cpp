@@ -35,8 +35,11 @@ void MainWindow::createConnections()
 void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
-    backend->open(fileName.toUtf8().constData());
-    mwr->start();
+    if (!fileName.isEmpty())
+    {
+        backend->open(fileName.toUtf8().constData());
+        mwr->start();
+    }
 }
 
 void MainWindow::close()
