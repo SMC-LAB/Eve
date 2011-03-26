@@ -29,6 +29,7 @@ void MainWindow::createConnections()
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(play()));
     connect(ui->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
     connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(open()));
+    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 }
 
 void MainWindow::open()
@@ -58,3 +59,8 @@ void MainWindow::pause()
     mwr->pause();
 }
 
+void MainWindow::quit()
+{
+    cout << "MainWindow: Quit" << endl;
+    exit(0);
+}
