@@ -19,6 +19,7 @@ public slots:
     void close();
     void play();
     void pause();
+    void quit();
     
 private:
     void init();
