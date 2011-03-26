@@ -1,0 +1,7 @@
+QtSimplePlayer/Makefile
+QtSimplePlayer/QtSimplePlayer
+QtSimplePlayer/*user
+QtSimplePlayer/*o
+QtSimplePlayer/moc*
+QtSimplePlayer/ui_*
+
