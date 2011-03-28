@@ -19,14 +19,20 @@ public slots:
     void close();
     void play();
     void pause();
+    void setGain(int val);
+//    void setPos(); 
     void quit();
     
 private:
-    void init();
-    void createConnections();
+    void init_();
+    void createConnections_();
 
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui_;
 
-    SimplePlayerBackend* backend;
-    MarsyasQt::MarSystemQtWrapper* mwr;
+    SimplePlayerBackend* backend_;
+    MarsyasQt::MarSystemQtWrapper* mwr_;
+
+    MarControlPtr filePtr_;
+    MarControlPtr gainPtr_;
+    MarControlPtr posPtr_;
 };
