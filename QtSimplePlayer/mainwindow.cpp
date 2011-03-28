@@ -4,32 +4,36 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui_(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    init();
-    createConnections();
+    ui_->setupUi(this);
+    init_();
+    createConnections_();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete backend;
-    delete mwr;
+    delete ui_;
+    delete backend_;
+    delete mwr_;
 }
 
-void MainWindow::init() 
+void MainWindow::init_() 
 {
-    backend = new SimplePlayerBackend();
-    mwr = new MarsyasQt::MarSystemQtWrapper(backend->getPlaybacknet());
+    backend_ = new SimplePlayerBackend();
+    mwr_ = new MarsyasQt::MarSystemQtWrapper(backend_->getPlaybacknet());
+    filePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/filename");
+    gainPtr_ = mwr_->getctrl("Gain/gain/mrs_real/gain");
+    posPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
 }
 
-void MainWindow::createConnections()
+void MainWindow::createConnections_()
 {
-    connect(ui->playButton, SIGNAL(clicked()), this, SLOT(play()));
-    connect(ui->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
-    connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(open()));
-    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
+    connect(ui_->playButton, SIGNAL(clicked()), this, SLOT(play()));
+    connect(ui_->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
+    connect(ui_->actionOpen, SIGNAL(triggered()), this, SLOT(open()));
+    connect(ui_->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
+    connect(ui_->gainSlider, SIGNAL(valueChanged(int)), this, SLOT(setGain(int)));
 }
 
 void MainWindow::open()
@@ -37,29 +41,38 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
-        backend->open(fileName.toUtf8().constData());
-        mwr->start();
+        cout << "MainWindow: Opening " << fileName.toUtf8().constData() << endl;
+        mwr_->updctrl(filePtr_, (fileName.toUtf8().constData()));
+        mwr_->updctrl(posPtr_, 0);
+        mwr_->start();
     }
 }
 
 void MainWindow::close()
 {
     cout << "MainWindow: Close" << endl;
-    backend->close();
-    mwr->quit();
+    backend_->close();
+    mwr_->quit();
 }
 
 
 void MainWindow::play()
 {
     cout << "MainWindow: Play" << endl;
-    mwr->play();
+    mwr_->play();
 }
 
 void MainWindow::pause()
 {
     cout << "MainWindow: Pause" << endl;
-    mwr->pause();
+    mwr_->pause();
+}
+
+void MainWindow::setGain(int val)
+{
+    cout << "MainWindow: set gain at " << val << endl;
+    float fval = val / 100.0f;
+    mwr_->updctrl(gainPtr_, fval);
 }
 
 void MainWindow::quit()
