@@ -33,7 +33,6 @@ void SimplePlayerBackend::open(string fileName)
 void SimplePlayerBackend::close()
 {
     cout << "SimplePlayerBackend: Closing current file" << endl;
-
     playbacknet->updControl("SoundFileSource/src/mrs_string/fileName", "");
     playbacknet->updControl("AudioSink/dest/mrs_bool/initAudio", false);    
 }

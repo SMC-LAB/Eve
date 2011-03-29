@@ -25,6 +25,9 @@ void MainWindow::init_()
     filePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/filename");
     gainPtr_ = mwr_->getctrl("Gain/gain/mrs_real/gain");
     posPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
+    initPtr_ = mwr_->getctrl("AudioSink/dest/mrs_bool/initAudio");
+    sizePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
+    freqPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
 }
 
 void MainWindow::createConnections_()
@@ -33,7 +36,9 @@ void MainWindow::createConnections_()
     connect(ui_->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
     connect(ui_->actionOpen, SIGNAL(triggered()), this, SLOT(open()));
     connect(ui_->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
-    connect(ui_->gainSlider, SIGNAL(valueChanged(int)), this, SLOT(setGain(int)));
+    connect(ui_->gainSlider, SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
+    connect(ui_->posSlider, SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
+    connect(this, SIGNAL(sliderChanged(int, QSlider*)), this, SLOT(moveSlider(int, QSlider*)));
 }
 
 void MainWindow::open()
@@ -43,8 +48,14 @@ void MainWindow::open()
     {
         cout << "MainWindow: Opening " << fileName.toUtf8().constData() << endl;
         mwr_->updctrl(filePtr_, (fileName.toUtf8().constData()));
-        mwr_->updctrl(posPtr_, 0);
+        mwr_->updctrl(initPtr_, true);
+        setPos(0);
+        setGain(50);
         mwr_->start();
+
+        QTimer *timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), this, SLOT(setPos()));
+        timer->start(100);
     }
 }
 
@@ -54,7 +65,6 @@ void MainWindow::close()
     backend_->close();
     mwr_->quit();
 }
-
 
 void MainWindow::play()
 {
@@ -68,15 +78,41 @@ void MainWindow::pause()
     mwr_->pause();
 }
 
+void MainWindow::setPos()
+{
+    mrs_natural pos = posPtr_->to<mrs_natural>();
+    mrs_natural size = sizePtr_->to<mrs_natural>();
+    
+    int val = (int) (100.0f * pos) / size;
+    
+    emit sliderChanged(val, ui_->posSlider);
+}
+
+
+void MainWindow::setPos(int val)
+{
+    cout << "MainWindow: set pos at " << val << endl;
+    float fval = val / 100.0f;
+    int pos = (int) sizePtr_->to<mrs_natural>() * fval;
+    mwr_->updctrl(posPtr_, pos);
+    emit sliderChanged(val, ui_->posSlider);
+}
+
 void MainWindow::setGain(int val)
 {
     cout << "MainWindow: set gain at " << val << endl;
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
+    emit sliderChanged(val, ui_->gainSlider);
 }
 
 void MainWindow::quit()
 {
     cout << "MainWindow: Quit" << endl;
     exit(0);
+}
+
+void MainWindow::moveSlider(int val, QSlider *slider) 
+{
+    slider->setValue(val);
 }
