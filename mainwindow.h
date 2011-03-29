@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include <QSlider>
+#include <QTimeEdit>
 #include "MarSystemQtWrapper.h"
 #include "backend.h"
 
@@ -41,8 +42,9 @@ private slots:
     void setPos(int val); 
     void quit();
     void moveSlider(int val, QSlider *slider);
+    void setTime(int val, QTimeEdit *time);
 
 signals:
     void sliderChanged(int val, QSlider *slider);
-    
+    void timeChanged(int val, QTimeEdit *time);
 };
