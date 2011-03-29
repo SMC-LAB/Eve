@@ -29,7 +29,7 @@ private:
     MarControlPtr posPtr_;
     MarControlPtr initPtr_;
     MarControlPtr sizePtr_;
-    MarControlPtr private;
+    MarControlPtr freqPtr_;
 
 private slots:
     void open();
