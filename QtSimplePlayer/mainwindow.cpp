@@ -39,6 +39,7 @@ void MainWindow::createConnections_()
     connect(ui_->gainSlider, SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
     connect(ui_->posSlider, SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
     connect(this, SIGNAL(sliderChanged(int, QSlider*)), this, SLOT(moveSlider(int, QSlider*)));
+    connect(this, SIGNAL(timeChanged(int, QTimeEdit*)), this, SLOT(setTime(int, QTimeEdit*)));
 }
 
 void MainWindow::open()
@@ -78,14 +79,23 @@ void MainWindow::pause()
     mwr_->pause();
 }
 
+void MainWindow::quit()
+{
+    cout << "MainWindow: Quit" << endl;
+    exit(0);
+}
+
 void MainWindow::setPos()
 {
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
-    
+    mrs_real freq = freqPtr_->to<mrs_real>();
+
     int val = (int) (100.0f * pos) / size;
-    
+    int secs = (int) (pos / freq);
+
     emit sliderChanged(val, ui_->posSlider);
+    emit timeChanged(secs, ui_->posTime);
 }
 
 
@@ -106,13 +116,14 @@ void MainWindow::setGain(int val)
     emit sliderChanged(val, ui_->gainSlider);
 }
 
-void MainWindow::quit()
-{
-    cout << "MainWindow: Quit" << endl;
-    exit(0);
-}
-
 void MainWindow::moveSlider(int val, QSlider *slider) 
 {
     slider->setValue(val);
+}
+
+void MainWindow::setTime(int val, QTimeEdit *time)
+{
+    QTime current(0, 0, 0, 0);
+    current = current.addSecs(val);    
+    time->setTime(current);
 }
