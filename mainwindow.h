@@ -1,6 +1,7 @@
 #include <QMainWindow>
 #include <QSlider>
 #include <QTimeEdit>
+#include <QTableWidget>
 #include "MarSystemQtWrapper.h"
 #include "backend.h"
 
@@ -31,6 +32,9 @@ private:
     MarControlPtr initPtr_;
     MarControlPtr sizePtr_;
     MarControlPtr freqPtr_;
+    MarControlPtr curPtr_;
+    MarControlPtr labelNamesPtr_;
+    
 
 private slots:
     void open();
@@ -43,8 +47,10 @@ private slots:
     void quit();
     void moveSlider(int val, QSlider *slider);
     void setTime(int val, QTimeEdit *time);
+    void setCurrentFile(mrs_string file, QTableWidget *table);
 
 signals:
     void sliderChanged(int val, QSlider *slider);
     void timeChanged(int val, QTimeEdit *time);
+    void fileChanged(mrs_string file, QTableWidget *table);
 };
