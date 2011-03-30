@@ -58,12 +58,11 @@ void MainWindow::open()
         connect(timer, SIGNAL(timeout()), this, SLOT(setPos()));
         timer->start(100);
     }
-}
+}    
 
 void MainWindow::close()
 {
     cout << "MainWindow: Close" << endl;
-    backend_->close();
     mwr_->quit();
 }
 
@@ -82,6 +81,7 @@ void MainWindow::pause()
 void MainWindow::quit()
 {
     cout << "MainWindow: Quit" << endl;
+    close();
     exit(0);
 }
 
@@ -90,6 +90,10 @@ void MainWindow::setPos()
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = freqPtr_->to<mrs_real>();
+
+    cout << pos << endl << size << freq << endl;
+    exit(0);
+    
 
     int val = (int) (100.0f * pos) / size;
     int secs = (int) (pos / freq);
