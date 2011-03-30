@@ -1,6 +1,7 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include <QFileDialog>
+#include <QtDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,6 +29,8 @@ void MainWindow::init_()
     initPtr_ = mwr_->getctrl("AudioSink/dest/mrs_bool/initAudio");
     sizePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
     freqPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
+    curPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
+    labelNamesPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
 }
 
 void MainWindow::createConnections_()
@@ -40,6 +43,8 @@ void MainWindow::createConnections_()
     connect(ui_->posSlider, SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
     connect(this, SIGNAL(sliderChanged(int, QSlider*)), this, SLOT(moveSlider(int, QSlider*)));
     connect(this, SIGNAL(timeChanged(int, QTimeEdit*)), this, SLOT(setTime(int, QTimeEdit*)));
+
+    connect(this, SIGNAL(fileChanged(mrs_string, QTableWidget*)), this, SLOT(setCurrentFile(mrs_string, QTableWidget*)));
 }
 
 void MainWindow::open()
@@ -47,7 +52,7 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
-        cout << "MainWindow: Opening " << fileName.toUtf8().constData() << endl;
+        qDebug() << "MainWindow: Opening " << fileName.toUtf8().constData();
         mwr_->updctrl(filePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initPtr_, true);
         setPos(0);
@@ -62,50 +67,50 @@ void MainWindow::open()
 
 void MainWindow::close()
 {
-    cout << "MainWindow: Close" << endl;
+    qDebug() << "MainWindow: Close";
     mwr_->quit();
 }
 
 void MainWindow::play()
 {
-    cout << "MainWindow: Play" << endl;
+    qDebug() << "MainWindow: Play";
     mwr_->play();
 }
 
 void MainWindow::pause()
 {
-    cout << "MainWindow: Pause" << endl;
+    qDebug() << "MainWindow: Pause";
     mwr_->pause();
 }
 
 void MainWindow::quit()
 {
-    cout << "MainWindow: Quit" << endl;
+    qDebug() << "MainWindow: Quit";
     close();
     exit(0);
 }
 
 void MainWindow::setPos()
 {
+    mrs_string file = curPtr_->to<mrs_string>();
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = freqPtr_->to<mrs_real>();
 
-    cout << pos << endl << size << freq << endl;
-    exit(0);
-    
+    qDebug() << pos << endl << size << endl << freq;
 
     int val = (int) (100.0f * pos) / size;
     int secs = (int) (pos / freq);
 
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
+    emit fileChanged(file, ui_->playTable);
 }
 
 
 void MainWindow::setPos(int val)
 {
-    cout << "MainWindow: set pos at " << val << endl;
+    qDebug() << "MainWindow: set pos at " << val;
     float fval = val / 100.0f;
     int pos = (int) sizePtr_->to<mrs_natural>() * fval;
     mwr_->updctrl(posPtr_, pos);
@@ -114,7 +119,7 @@ void MainWindow::setPos(int val)
 
 void MainWindow::setGain(int val)
 {
-    cout << "MainWindow: set gain at " << val << endl;
+    qDebug() << "MainWindow: set gain at " << val;
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
     emit sliderChanged(val, ui_->gainSlider);
@@ -130,4 +135,11 @@ void MainWindow::setTime(int val, QTimeEdit *time)
     QTime current(0, 0, 0, 0);
     current = current.addSecs(val);    
     time->setTime(current);
+}
+
+void MainWindow::setCurrentFile(mrs_string file, QTableWidget *table)
+{
+
+    QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString(file));
+    table->setItem(0, 0, title);
 }
