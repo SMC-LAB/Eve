@@ -14,11 +14,6 @@ public:
     
     MarSystem* getPlaybacknet();
 
-    void open(string fileName);
-    void close();
-    void play();
-    void pause();
-
 private:
     MarSystem* playbacknet;
 };
