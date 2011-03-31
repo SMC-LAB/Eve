@@ -20,23 +20,30 @@ public:
 private:
     void init_();
     void createConnections_();
+    void initPlayTable();
 
     Ui::MainWindow *ui_;
 
-    SimplePlayerBackend* backend_;
-    MarsyasQt::MarSystemQtWrapper* mwr_;
+    SimplePlayerBackend *backend_;
+    MarsyasQt::MarSystemQtWrapper *mwr_;
 
     QTimer *timer_;
+    QTableWidget *table_;
 
-    MarControlPtr filePtr_;
-    MarControlPtr gainPtr_;
+    MarControlPtr filenamePtr_;
     MarControlPtr posPtr_;
-    MarControlPtr initPtr_;
+    MarControlPtr gainPtr_;
+    MarControlPtr initAudioPtr_;
     MarControlPtr sizePtr_;
-    MarControlPtr freqPtr_;
-    MarControlPtr curPtr_;
-    MarControlPtr labelNamesPtr_;
+    MarControlPtr osratePtr_;
+
+    MarControlPtr numFilesPtr_;
+    MarControlPtr allfilenamesPtr_;
+    MarControlPtr currentlyPlayingPtr_;
     
+    MarControlPtr nLabelsPtr_;
+    MarControlPtr labelNamesPtr_;
+    MarControlPtr currentLabelPtr_;
 
 private slots:
     void open();
