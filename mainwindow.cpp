@@ -49,12 +49,16 @@ void MainWindow::init_()
     nLabelsPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/nLabels");
     labelNamesPtr_       = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
     currentLabelPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_natural/currentLabel");
+
+    advancePtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/advance");
+    cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
 }
 
 void MainWindow::createConnections_()
 {
     connect(ui_->playButton,  SIGNAL(clicked()),        this, SLOT(play()));
     connect(ui_->pauseButton, SIGNAL(clicked()),        this, SLOT(pause()));
+    connect(ui_->nextButton,  SIGNAL(clicked()),        this, SLOT(next()));
     connect(ui_->actionOpen,  SIGNAL(triggered()),      this, SLOT(open()));
     connect(ui_->actionClose, SIGNAL(triggered()),      this, SLOT(close()));
     connect(ui_->actionQuit,  SIGNAL(triggered()),      this, SLOT(quit()));
@@ -73,7 +77,7 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
-        qDebug() << "MainWindow: Opening " << fileName;
+//        qDebug() << "MainWindow: Opening " << fileName;
 
         mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initAudioPtr_, true);
@@ -90,26 +94,44 @@ void MainWindow::open()
 
 void MainWindow::close()
 {
-    qDebug() << "MainWindow: Close";
+//    qDebug() << "MainWindow: Close";
     mwr_->exit();
     timer_->stop();
 }
 
 void MainWindow::play()
 {
-    qDebug() << "MainWindow: Play";
+//    qDebug() << "MainWindow: Play";
     mwr_->play();
 }
 
 void MainWindow::pause()
 {
-    qDebug() << "MainWindow: Pause";
+//    qDebug() << "MainWindow: Pause";
     mwr_->pause();
+}
+
+void MainWindow::next()
+{
+    QString cur = QString::fromStdString(currentlyPlayingPtr_->to<mrs_string>());
+    int cindex = cindexPtr_->to<mrs_natural>();
+
+    qDebug() << "MainWindow: Before" << cur;
+    qDebug() << "cindex: " << cindex;
+    
+    mwr_->updctrl(advancePtr_, cindexPtr_->to<mrs_natural>() + 1);
+    setPos(STARTPOS);
+    
+    cur = QString::fromStdString(currentlyPlayingPtr_->to<mrs_string>());
+    cindex = cindexPtr_->to<mrs_natural>();
+
+    qDebug() << "MainWindow: After" << cur;
+    qDebug() << "cindex: " << cindex;
 }
 
 void MainWindow::quit()
 {
-    qDebug() << "MainWindow: Quit";
+//    qDebug() << "MainWindow: Quit";
     close();
     exit(0);
 }
@@ -134,7 +156,7 @@ void MainWindow::update()
 
 void MainWindow::setPos(int val)
 {
-    qDebug() << "MainWindow: set pos at " << val;
+//    qDebug() << "MainWindow: set pos at " << val;
     float fval = val / 100.0f;
     int pos = (int) sizePtr_->to<mrs_natural>() * fval;
     mwr_->updctrl(posPtr_, pos);
@@ -143,7 +165,7 @@ void MainWindow::setPos(int val)
 
 void MainWindow::setGain(int val)
 {
-    qDebug() << "MainWindow: set gain at " << val;
+//    qDebug() << "MainWindow: set gain at " << val;
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
     emit sliderChanged(val, ui_->gainSlider);

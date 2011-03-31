@@ -45,11 +45,15 @@ private:
     MarControlPtr labelNamesPtr_;
     MarControlPtr currentLabelPtr_;
 
+    MarControlPtr advancePtr_;
+    MarControlPtr cindexPtr_;
+
 private slots:
     void open();
     void close();
     void play();
     void pause();
+    void next();
     void setGain(int val);
     void update();
     void setPos(int val); 
