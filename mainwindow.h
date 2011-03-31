@@ -26,6 +26,8 @@ private:
     SimplePlayerBackend* backend_;
     MarsyasQt::MarSystemQtWrapper* mwr_;
 
+    QTimer *timer_;
+
     MarControlPtr filePtr_;
     MarControlPtr gainPtr_;
     MarControlPtr posPtr_;
@@ -42,7 +44,7 @@ private slots:
     void play();
     void pause();
     void setGain(int val);
-    void setPos();
+    void update();
     void setPos(int val); 
     void quit();
     void moveSlider(int val, QSlider *slider);

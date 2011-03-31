@@ -1,7 +1,13 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
-#include <QFileDialog>
 #include <QtDebug>
+#include <QFileDialog>
+
+#define STARTPOS 0
+#define STARTGAIN 50
+#define UPDATEFREQ 250
+#define samplesToTicks(pos_, size_) ((int) ((100.0f * (pos_)) / (size_)))
+#define samplesToSecs(pos_, freq_) ((int) ((pos_) / (freq_)))
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +37,7 @@ void MainWindow::init_()
     freqPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
     curPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
     labelNamesPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
+    timer_ = new QTimer(this);
 }
 
 void MainWindow::createConnections_()
@@ -45,6 +52,8 @@ void MainWindow::createConnections_()
     connect(this, SIGNAL(timeChanged(int, QTimeEdit*)), this, SLOT(setTime(int, QTimeEdit*)));
 
     connect(this, SIGNAL(fileChanged(mrs_string, QTableWidget*)), this, SLOT(setCurrentFile(mrs_string, QTableWidget*)));
+
+    connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
 }
 
 void MainWindow::open()
@@ -53,22 +62,24 @@ void MainWindow::open()
     if (!fileName.isEmpty())
     {
         qDebug() << "MainWindow: Opening " << fileName.toUtf8().constData();
+
         mwr_->updctrl(filePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initPtr_, true);
-        setPos(0);
-        setGain(50);
+
+        setPos(STARTPOS);
+        setGain(STARTGAIN);
+ 
         mwr_->start();
 
-        QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(setPos()));
-        timer->start(100);
+        timer_->start(UPDATEFREQ);
     }
-}    
+}
 
 void MainWindow::close()
 {
     qDebug() << "MainWindow: Close";
     mwr_->quit();
+    timer_->stop();
 }
 
 void MainWindow::play()
@@ -90,7 +101,7 @@ void MainWindow::quit()
     exit(0);
 }
 
-void MainWindow::setPos()
+void MainWindow::update()
 {
     mrs_string file = curPtr_->to<mrs_string>();
     mrs_natural pos = posPtr_->to<mrs_natural>();
@@ -99,8 +110,8 @@ void MainWindow::setPos()
 
     qDebug() << pos << endl << size << endl << freq;
 
-    int val = (int) (100.0f * pos) / size;
-    int secs = (int) (pos / freq);
+    int val = samplesToTicks(pos, size);
+    int secs = samplesToSecs(pos, freq);
 
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
@@ -139,7 +150,8 @@ void MainWindow::setTime(int val, QTimeEdit *time)
 
 void MainWindow::setCurrentFile(mrs_string file, QTableWidget *table)
 {
-
+    cout << ".";
+    
     QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString(file));
     table->setItem(0, 0, title);
 }
