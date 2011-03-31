@@ -2,6 +2,8 @@
 #include "mainwindow.h"
 #include <QtDebug>
 #include <QFileDialog>
+//#include <QtGlobal>
+#include <QTableWidgetSelectionRange>
 
 #define STARTPOS 0
 #define STARTGAIN 50
@@ -23,34 +25,44 @@ MainWindow::~MainWindow()
     delete ui_;
     delete backend_;
     delete mwr_;
+    delete timer_;
 }
 
 void MainWindow::init_() 
 {
-    backend_ = new SimplePlayerBackend();
-    mwr_ = new MarsyasQt::MarSystemQtWrapper(backend_->getPlaybacknet());
-    filePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/filename");
-    gainPtr_ = mwr_->getctrl("Gain/gain/mrs_real/gain");
-    posPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
-    initPtr_ = mwr_->getctrl("AudioSink/dest/mrs_bool/initAudio");
-    sizePtr_ = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
-    freqPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
-    curPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
-    labelNamesPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
-    timer_ = new QTimer(this);
+    backend_             = new SimplePlayerBackend();
+    mwr_                 = new MarsyasQt::MarSystemQtWrapper(backend_->getPlaybacknet());
+    timer_               = new QTimer(this);
+
+    gainPtr_             = mwr_->getctrl("Gain/gain/mrs_real/gain");
+    initAudioPtr_        = mwr_->getctrl("AudioSink/dest/mrs_bool/initAudio");
+
+    filenamePtr_         = mwr_->getctrl("SoundFileSource/src/mrs_string/filename");
+    posPtr_              = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
+    sizePtr_             = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
+    osratePtr_           = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
+
+    numFilesPtr_         = mwr_->getctrl("SoundFileSource/src/mrs_natural/numFiles");
+    allfilenamesPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_string/allfilenames");
+    currentlyPlayingPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
+
+    nLabelsPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/nLabels");
+    labelNamesPtr_       = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
+    currentLabelPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_natural/currentLabel");
 }
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->playButton, SIGNAL(clicked()), this, SLOT(play()));
-    connect(ui_->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
-    connect(ui_->actionOpen, SIGNAL(triggered()), this, SLOT(open()));
-    connect(ui_->actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
-    connect(ui_->gainSlider, SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
-    connect(ui_->posSlider, SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
-    connect(this, SIGNAL(sliderChanged(int, QSlider*)), this, SLOT(moveSlider(int, QSlider*)));
-    connect(this, SIGNAL(timeChanged(int, QTimeEdit*)), this, SLOT(setTime(int, QTimeEdit*)));
+    connect(ui_->playButton,  SIGNAL(clicked()),        this, SLOT(play()));
+    connect(ui_->pauseButton, SIGNAL(clicked()),        this, SLOT(pause()));
+    connect(ui_->actionOpen,  SIGNAL(triggered()),      this, SLOT(open()));
+    connect(ui_->actionClose, SIGNAL(triggered()),      this, SLOT(close()));
+    connect(ui_->actionQuit,  SIGNAL(triggered()),      this, SLOT(quit()));
+    connect(ui_->gainSlider,  SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
+    connect(ui_->posSlider,   SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
 
+    connect(this, SIGNAL(sliderChanged(int, QSlider*)),           this, SLOT(moveSlider(int, QSlider*)));
+    connect(this, SIGNAL(timeChanged(int, QTimeEdit*)),           this, SLOT(setTime(int, QTimeEdit*)));
     connect(this, SIGNAL(fileChanged(mrs_string, QTableWidget*)), this, SLOT(setCurrentFile(mrs_string, QTableWidget*)));
 
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
@@ -61,13 +73,14 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
-        qDebug() << "MainWindow: Opening " << fileName.toUtf8().constData();
+        qDebug() << "MainWindow: Opening " << fileName;
 
-        mwr_->updctrl(filePtr_, (fileName.toUtf8().constData()));
-        mwr_->updctrl(initPtr_, true);
+        mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
+        mwr_->updctrl(initAudioPtr_, true);
 
         setPos(STARTPOS);
         setGain(STARTGAIN);
+        initPlayTable();
  
         mwr_->start();
 
@@ -78,7 +91,7 @@ void MainWindow::open()
 void MainWindow::close()
 {
     qDebug() << "MainWindow: Close";
-    mwr_->quit();
+    mwr_->exit();
     timer_->stop();
 }
 
@@ -103,12 +116,12 @@ void MainWindow::quit()
 
 void MainWindow::update()
 {
-    mrs_string file = curPtr_->to<mrs_string>();
+    mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
-    mrs_real freq = freqPtr_->to<mrs_real>();
+    mrs_real freq = osratePtr_->to<mrs_real>();
 
-    qDebug() << pos << endl << size << endl << freq;
+    //qDebug() << pos << endl << size << endl << freq;
 
     int val = samplesToTicks(pos, size);
     int secs = samplesToSecs(pos, freq);
@@ -148,10 +161,47 @@ void MainWindow::setTime(int val, QTimeEdit *time)
     time->setTime(current);
 }
 
+void MainWindow::initPlayTable()
+{
+    mrs_string files = allfilenamesPtr_->to<mrs_string>();
+    mrs_natural nfiles = numFilesPtr_->to<mrs_natural>();
+    mrs_string labels = labelNamesPtr_->to<mrs_string>();
+    //mrs_natural nlabels = nLabelsPtr_->to<mrs_natural>();
+
+    //qDebug() << nfiles << " " << nlabels << " " << QString::fromStdString(labels);
+    //Q_ASSERT(nfiles == nlabels);
+
+    QTableWidget *table = ui_->playTable;
+
+    if (nfiles == 1) {
+        mrs_string file = filenamePtr_->to<mrs_string>();
+        QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString(file));
+        table->setItem(0, 0, title);
+    }
+    else {
+        
+        QStringList fileList = QString::fromStdString(files).split(",");
+        QStringList labelList = QString::fromStdString(labels).split(",");
+
+        table->setRowCount(nfiles);
+        table->setColumnCount(1);
+
+        for (int i = 0; i < fileList.size(); ++i) {
+        
+            QTableWidgetItem *title = new QTableWidgetItem(fileList.at(i));
+            table->setItem(i, 0, title);
+
+            //QTableWidgetItem *label = new QTableWidgetItem(labelList.at(i));
+            //table->setItem(i, 1, title);
+        }
+
+        table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 0), true);
+    }
+}
+
+
 void MainWindow::setCurrentFile(mrs_string file, QTableWidget *table)
 {
-    cout << ".";
-    
-    QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString(file));
-    table->setItem(0, 0, title);
+    table->clearSelection();
+    table->findItems(QString::fromStdString(file), Qt::MatchExactly).at(0)->setSelected(true);   
 }
