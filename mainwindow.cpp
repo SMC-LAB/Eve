@@ -2,14 +2,14 @@
 #include "mainwindow.h"
 #include <QtDebug>
 #include <QFileDialog>
-//#include <QtGlobal>
 #include <QTableWidgetSelectionRange>
+//#include <QtSql>
 
-#define STARTPOS 0
-#define STARTGAIN 50
-#define UPDATEFREQ 250
-#define samplesToTicks(pos_, size_) ((int) ((100.0f * (pos_)) / (size_)))
-#define samplesToSecs(pos_, freq_) ((int) ((pos_) / (freq_)))
+#define START_POS 0
+#define START_GAIN 50
+#define UPDATE_FREQ 250
+#define SAMPLES_TO_TICKS(pos_, size_) ((int) ((100.0f * (pos_)) / (size_)))
+#define SAMPLES_TO_SECS(pos_, freq_) ((int) ((pos_) / (freq_)))
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,8 +41,11 @@ void MainWindow::init_()
     posPtr_              = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
     sizePtr_             = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
     osratePtr_           = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
-    hasDataPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_bool/hasData");
 
+    hasDataPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_bool/hasData");
+    
+    activePtr_           = mwr_->getctrl("mrs_bool/active");
+    
     numFilesPtr_         = mwr_->getctrl("SoundFileSource/src/mrs_natural/numFiles");
     allfilenamesPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_string/allfilenames");
     currentlyPlayingPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
@@ -53,12 +56,18 @@ void MainWindow::init_()
 
     advancePtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/advance");
     cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
+
+    //QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    //db.setHostName("bigblue");
+    //db.setDatabaseName("/Users/psilva/Desktop/QtSimplePlayer.db");
+    //db.setUserName("acarlson");
+    //db.setPassword("1uTbSbAs");
+    //bool ok = db.open();
 }
 
 void MainWindow::createConnections_()
 {
     connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(play()));
-    connect(ui_->pauseButton,    SIGNAL(clicked()),        this, SLOT(pause()));
     connect(ui_->previousButton, SIGNAL(clicked()),        this, SLOT(previous()));
     connect(ui_->nextButton,     SIGNAL(clicked()),        this, SLOT(next()));
     connect(ui_->actionOpen,     SIGNAL(triggered()),      this, SLOT(open()));
@@ -82,13 +91,13 @@ void MainWindow::open()
         mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initAudioPtr_, true);
 
-        setPos(STARTPOS);
-        setGain(STARTGAIN);
+        setPos(START_POS);
+        setGain(START_GAIN);
         initPlayTable();
  
         mwr_->start();
 
-        timer_->start(UPDATEFREQ);
+        timer_->start(UPDATE_FREQ);
     }
 }
 
@@ -100,12 +109,16 @@ void MainWindow::close()
 
 void MainWindow::play()
 {
-    mwr_->play();
-}
-
-void MainWindow::pause()
-{
-    mwr_->pause();
+    if (activePtr_->to<mrs_bool>()){
+        mwr_->pause();
+        ui_->playButton->setText("&Play");        
+    }
+    else
+    {
+        mwr_->play();
+        ui_->playButton->setText("&Pause");
+    }
+    
 }
 
 void MainWindow::next()
@@ -113,13 +126,13 @@ void MainWindow::next()
     cout << cindexPtr_->to<mrs_natural>() << endl;
     cout << numFilesPtr_->to<mrs_natural>() << endl;
 
-    setPos(STARTPOS);
+    setPos(START_POS);
     mwr_->updctrl(advancePtr_, 1);
 }
 
 void MainWindow::previous()
 {
-    setPos(STARTPOS);
+    setPos(START_POS);
     mwr_->updctrl(advancePtr_, -1);
 }
 
@@ -131,18 +144,18 @@ void MainWindow::quit()
 
 void MainWindow::update()
 {
-    //if (!hasDataPtr_->to<mrs_bool>())
-        //timer_->stop();
+    if (!hasDataPtr_->to<mrs_bool>())
+        close();
     
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = osratePtr_->to<mrs_real>();
 
-    //qDebug() << pos << endl << size << endl << freq;
+    //qDebug() << pos << endl << size << endl << freq; // FIXME: size does not get updated until MarSystemQtWrapper::pause() is called
 
-    int val = samplesToTicks(pos, size);
-    int secs = samplesToSecs(pos, freq);
+    int val = SAMPLES_TO_TICKS(pos, size);
+    int secs = SAMPLES_TO_SECS(pos, freq);
 
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
@@ -182,10 +195,6 @@ void MainWindow::initPlayTable()
     mrs_string files = allfilenamesPtr_->to<mrs_string>();
     mrs_natural nfiles = numFilesPtr_->to<mrs_natural>();
     mrs_string labels = labelNamesPtr_->to<mrs_string>();
-    //mrs_natural nlabels = nLabelsPtr_->to<mrs_natural>();
-
-    //qDebug() << nfiles << " " << nlabels << " " << QString::fromStdString(labels);
-    //Q_ASSERT(nfiles == nlabels);
 
     QTableWidget *table = ui_->playTable;
 
@@ -203,18 +212,13 @@ void MainWindow::initPlayTable()
         table->setColumnCount(1);
 
         for (int i = 0; i < fileList.size(); ++i) {
-        
             QTableWidgetItem *title = new QTableWidgetItem(fileList.at(i));
             table->setItem(i, 0, title);
-
-            //QTableWidgetItem *label = new QTableWidgetItem(labelList.at(i));
-            //table->setItem(i, 1, title);
         }
 
         table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 0), true);
     }
 }
-
 
 void MainWindow::setCurrentFile(mrs_string file, QTableWidget *table)
 {
