@@ -41,6 +41,7 @@ void MainWindow::init_()
     posPtr_              = mwr_->getctrl("SoundFileSource/src/mrs_natural/pos");  
     sizePtr_             = mwr_->getctrl("SoundFileSource/src/mrs_natural/size");  
     osratePtr_           = mwr_->getctrl("SoundFileSource/src/mrs_real/osrate");
+    hasDataPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_bool/hasData");
 
     numFilesPtr_         = mwr_->getctrl("SoundFileSource/src/mrs_natural/numFiles");
     allfilenamesPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_string/allfilenames");
@@ -56,14 +57,15 @@ void MainWindow::init_()
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->playButton,  SIGNAL(clicked()),        this, SLOT(play()));
-    connect(ui_->pauseButton, SIGNAL(clicked()),        this, SLOT(pause()));
-    connect(ui_->nextButton,  SIGNAL(clicked()),        this, SLOT(next()));
-    connect(ui_->actionOpen,  SIGNAL(triggered()),      this, SLOT(open()));
-    connect(ui_->actionClose, SIGNAL(triggered()),      this, SLOT(close()));
-    connect(ui_->actionQuit,  SIGNAL(triggered()),      this, SLOT(quit()));
-    connect(ui_->gainSlider,  SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
-    connect(ui_->posSlider,   SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
+    connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(play()));
+    connect(ui_->pauseButton,    SIGNAL(clicked()),        this, SLOT(pause()));
+    connect(ui_->previousButton, SIGNAL(clicked()),        this, SLOT(previous()));
+    connect(ui_->nextButton,     SIGNAL(clicked()),        this, SLOT(next()));
+    connect(ui_->actionOpen,     SIGNAL(triggered()),      this, SLOT(open()));
+    connect(ui_->actionClose,    SIGNAL(triggered()),      this, SLOT(close()));
+    connect(ui_->actionQuit,     SIGNAL(triggered()),      this, SLOT(quit()));
+    connect(ui_->gainSlider,     SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
+    connect(ui_->posSlider,      SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
 
     connect(this, SIGNAL(sliderChanged(int, QSlider*)),           this, SLOT(moveSlider(int, QSlider*)));
     connect(this, SIGNAL(timeChanged(int, QTimeEdit*)),           this, SLOT(setTime(int, QTimeEdit*)));
@@ -77,8 +79,6 @@ void MainWindow::open()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
     {
-//        qDebug() << "MainWindow: Opening " << fileName;
-
         mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initAudioPtr_, true);
 
@@ -94,50 +94,46 @@ void MainWindow::open()
 
 void MainWindow::close()
 {
-//    qDebug() << "MainWindow: Close";
     mwr_->exit();
     timer_->stop();
 }
 
 void MainWindow::play()
 {
-//    qDebug() << "MainWindow: Play";
     mwr_->play();
 }
 
 void MainWindow::pause()
 {
-//    qDebug() << "MainWindow: Pause";
     mwr_->pause();
 }
 
 void MainWindow::next()
 {
-    QString cur = QString::fromStdString(currentlyPlayingPtr_->to<mrs_string>());
-    int cindex = cindexPtr_->to<mrs_natural>();
+    cout << cindexPtr_->to<mrs_natural>() << endl;
+    cout << numFilesPtr_->to<mrs_natural>() << endl;
 
-    qDebug() << "MainWindow: Before" << cur;
-    qDebug() << "cindex: " << cindex;
-    
-    mwr_->updctrl(advancePtr_, cindexPtr_->to<mrs_natural>() + 1);
     setPos(STARTPOS);
-    
-    cur = QString::fromStdString(currentlyPlayingPtr_->to<mrs_string>());
-    cindex = cindexPtr_->to<mrs_natural>();
+    mwr_->updctrl(advancePtr_, 1);
+}
 
-    qDebug() << "MainWindow: After" << cur;
-    qDebug() << "cindex: " << cindex;
+void MainWindow::previous()
+{
+    setPos(STARTPOS);
+    mwr_->updctrl(advancePtr_, -1);
 }
 
 void MainWindow::quit()
 {
-//    qDebug() << "MainWindow: Quit";
     close();
     exit(0);
 }
 
 void MainWindow::update()
 {
+    //if (!hasDataPtr_->to<mrs_bool>())
+        //timer_->stop();
+    
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
@@ -156,7 +152,6 @@ void MainWindow::update()
 
 void MainWindow::setPos(int val)
 {
-//    qDebug() << "MainWindow: set pos at " << val;
     float fval = val / 100.0f;
     int pos = (int) sizePtr_->to<mrs_natural>() * fval;
     mwr_->updctrl(posPtr_, pos);
@@ -165,7 +160,6 @@ void MainWindow::setPos(int val)
 
 void MainWindow::setGain(int val)
 {
-//    qDebug() << "MainWindow: set gain at " << val;
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
     emit sliderChanged(val, ui_->gainSlider);

@@ -36,6 +36,7 @@ private:
     MarControlPtr initAudioPtr_;
     MarControlPtr sizePtr_;
     MarControlPtr osratePtr_;
+    MarControlPtr hasDataPtr_;
 
     MarControlPtr numFilesPtr_;
     MarControlPtr allfilenamesPtr_;
@@ -53,6 +54,7 @@ private slots:
     void close();
     void play();
     void pause();
+    void previous();
     void next();
     void setGain(int val);
     void update();
