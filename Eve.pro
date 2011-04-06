@@ -1,6 +1,6 @@
 QT       += core gui #sql
 
-TARGET   = QtSimplePlayer
+TARGET   = Eve
 TEMPLATE = app
 
 SOURCES += main.cpp       \
