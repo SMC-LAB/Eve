@@ -18,7 +18,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_() 
 {
-    transport_ = new Transport(ui_->centralWidget);
+    transport_ = new Transport();
+
+    QHBoxLayout *layout = new QHBoxLayout(ui_->groupBoxTransport);
+    layout->addWidget(transport_);
 }
 
 void MainWindow::createConnections_()

@@ -22,8 +22,14 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
-   <item row="0" column="0">
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
     <layout class="QGridLayout" name="gridLayout_3">
      <item row="0" column="0">
       <layout class="QGridLayout" name="gridLayout">
@@ -31,6 +37,9 @@
         <widget class="QPushButton" name="previousButton">
          <property name="text">
           <string>Prev</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
