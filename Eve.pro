@@ -5,12 +5,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp       \
            mainwindow.cpp \
-           backend.cpp
+           backend.cpp    \
+           transport.cpp
 
 HEADERS += mainwindow.h   \
-           backend.h
+           backend.h      \
+           transport.h
 
-FORMS   += mainwindow.ui
+FORMS   += mainwindow.ui  \
+           transport.ui
 
 MARSYAS_INSTALL_DIR = /usr/local
 
