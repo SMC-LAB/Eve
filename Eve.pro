@@ -7,16 +7,19 @@ SOURCES += main.cpp       \
            mainwindow.cpp \
            backend.cpp    \
            transport.cpp \
-    tagger.cpp
+    tagger.cpp \
+    experiment.cpp
 
 HEADERS += mainwindow.h   \
            backend.h      \
            transport.h \
-    tagger.h
+    tagger.h \
+    experiment.h
 
 FORMS   += mainwindow.ui  \
            transport.ui \
-    tagger.ui
+    tagger.ui \
+    experiment.ui
 
 MARSYAS_INSTALL_DIR = /usr/local
 

@@ -1,6 +1,5 @@
 #include "ui_transport.h"
 #include "transport.h"
-#include <QtDebug>
 #include <QFileDialog>
 #include <QTableWidgetSelectionRange>
 
