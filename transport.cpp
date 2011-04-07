@@ -3,7 +3,6 @@
 #include <QtDebug>
 #include <QFileDialog>
 #include <QTableWidgetSelectionRange>
-//#include <QtSql>
 
 #define START_POS 0
 #define START_GAIN 50
@@ -56,13 +55,6 @@ void Transport::init_()
 
     advancePtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/advance");
     cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
-
-    //QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    //db.setHostName("bigblue");
-    //db.setDatabaseName("/Users/psilva/Desktop/QtSimplePlayer.db");
-    //db.setUserName("acarlson");
-    //db.setPassword("1uTbSbAs");
-    //bool ok = db.open();
 }
 
 void Transport::createConnections_()

@@ -1,4 +1,4 @@
-QT       += core gui #sql
+QT       += core gui sql
 
 TARGET   = Eve
 TEMPLATE = app
@@ -6,14 +6,17 @@ TEMPLATE = app
 SOURCES += main.cpp       \
            mainwindow.cpp \
            backend.cpp    \
-           transport.cpp
+           transport.cpp \
+    tagger.cpp
 
 HEADERS += mainwindow.h   \
            backend.h      \
-           transport.h
+           transport.h \
+    tagger.h
 
 FORMS   += mainwindow.ui  \
-           transport.ui
+           transport.ui \
+    tagger.ui
 
 MARSYAS_INSTALL_DIR = /usr/local
 

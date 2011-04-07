@@ -19,9 +19,13 @@ MainWindow::~MainWindow()
 void MainWindow::init_() 
 {
     transport_ = new Transport();
+    tagger_ = new Tagger();
 
-    QHBoxLayout *layout = new QHBoxLayout(ui_->groupBoxTransport);
-    layout->addWidget(transport_);
+    QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
+    QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
+
+    llayout->addWidget(transport_);
+    rlayout->addWidget(tagger_);
 }
 
 void MainWindow::createConnections_()

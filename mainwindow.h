@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include "transport.h"
+#include "tagger.h"
 
 namespace Ui {
     class MainWindow;
@@ -20,4 +21,5 @@ private:
     Ui::MainWindow *ui_;
 
     Transport *transport_;
+    Tagger *tagger_;
 };
