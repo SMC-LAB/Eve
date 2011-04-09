@@ -17,8 +17,7 @@ public:
 
 private:
     void init_();
-    
-    Ui::Tagger *ui_;
+    Ui::Tagger *ui_;    
 };
 
 #endif // TAGGER_H
