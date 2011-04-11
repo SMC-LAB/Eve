@@ -40,7 +40,5 @@ void Tagger::init_()
 
     QTableView *table = ui_->tagTable;
     table->setModel(model);
-    qDebug() << "Gonna show table...";
-    qDebug() << "Shoulda appeared...";
 }
 

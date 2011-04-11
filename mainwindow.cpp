@@ -1,6 +1,7 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -21,7 +22,6 @@ void MainWindow::init_()
 {
     transport_ = new Transport();
     tagger_ = new Tagger();
-    experiment_ = new Experiment();
 
     QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
     QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
@@ -56,6 +56,12 @@ void MainWindow::about()
 
 void MainWindow::newExperiment()
 {
-    Experiment *e = new Experiment();
-    e->show();
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if (!fileName.isEmpty())
+    {
+        QFile::remove(fileName);
+        experiment_ = new Experiment();
+        experiment_->init(fileName);
+        experiment_->show();
+    }    
 }
