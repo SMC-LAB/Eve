@@ -41,8 +41,9 @@ CREATE TABLE Stimuli (
     Name         TEXT,
     Path         TEXT    NOT NULL,
     Duration     INT,
+    Tagged       BOOLEAN DEFAULT (0),
     AnnotationID INTEGER REFERENCES Annotations ( ID ),
-    DescriptorID INTEGER REFERENCES Descriptors ( ID ) 
+    DescriptorID INTEGER REFERENCES Descriptors ( ID )
 );
 
 -- Table: Experiments

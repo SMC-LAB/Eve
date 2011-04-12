@@ -23,8 +23,8 @@ private:
     Ui::Experiment *ui_;
     QSqlDatabase db_;
 
-    QSqlTableModel *model;
-    QTableView *table;
+    QSqlTableModel *model_;
+    QTableView *table_;
 
     void createConnections_();
     void populateTagsTable_();

@@ -70,6 +70,7 @@ void Experiment::init(QString fileName)
            "    Name         TEXT,"
            "    Path         TEXT    NOT NULL,"
            "    Duration     INT,"
+           "    Tagged       BOOLEAN DEFAULT (0),"
            "    AnnotationID INTEGER REFERENCES Annotations ( ID ),"
            "    DescriptorID INTEGER REFERENCES Descriptors ( ID ) "
            ");"
@@ -101,26 +102,26 @@ void Experiment::init(QString fileName)
 
 void Experiment::populateTagsTable_() 
 {
-    model = new QSqlTableModel;
-    model->setTable("Tags");
-    model->select();
+    model_ = new QSqlTableModel(this, QSqlDatabase::database("Main"));
+    model_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    model_->setTable("Tags");
+    model_->select();
 
-    table = ui_->editTagsView;
-    table->setModel(model);
+    table_ = ui_->editTagsView;
+    table_->setModel(model_);
+    table_->hideColumn(0);
 }
 
 void Experiment::addTag() 
 {
-    int row = model->rowCount();
-    model->insertRow(row);
+    int row = model_->rowCount();
+    model_->insertRow(row);
 }
 
 void Experiment::removeTag()
 {
-    QModelIndex index = table->currentIndex();
-    model->removeRow(index.row(), index);
-    model->select();
-    qDebug() << "remove row " << index.row();
+    QModelIndex index = table_->currentIndex();
+    model_->removeRows(index.row(), 1);
 }
 
 
