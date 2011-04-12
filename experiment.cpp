@@ -6,7 +6,6 @@ Experiment::Experiment(QWidget *parent) :
     ui_(new Ui::Experiment)
 {
     ui_->setupUi(this);
-    createConnections_();
 }
 
 Experiment::~Experiment()
@@ -14,7 +13,17 @@ Experiment::~Experiment()
     db_.close();
     delete &db_;
     delete ui_;
+    delete transport_;
 }
+
+void Experiment::createConnections_() 
+{
+    connect(ui_->addTagPushButton, SIGNAL(clicked()), this, SLOT(addTag()));
+    connect(ui_->removeTagPushButton, SIGNAL(clicked()), this, SLOT(removeTag()));
+    connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->openCollectionFileButton, SIGNAL(clicked()), transport_, SLOT(open()));
+}
+
 
 QSqlDatabase Experiment::getDb()
 {
@@ -98,6 +107,8 @@ void Experiment::init(QString fileName)
     }    
 
     populateTagsTable_();
+    populateStimuliTable_();
+    createConnections_();
 }
 
 void Experiment::populateTagsTable_() 
@@ -110,6 +121,12 @@ void Experiment::populateTagsTable_()
     table_ = ui_->editTagsView;
     table_->setModel(model_);
     table_->hideColumn(0);
+}
+
+void Experiment::populateStimuliTable_() 
+{
+    transport_ = new Transport();
+    ui_->verticalLayout_2->addWidget(transport_);
 }
 
 void Experiment::addTag() 
@@ -125,9 +142,3 @@ void Experiment::removeTag()
 }
 
 
-void Experiment::createConnections_() 
-{
-    connect(ui_->addTagPushButton, SIGNAL(clicked()), this, SLOT(addTag()));
-    connect(ui_->removeTagPushButton, SIGNAL(clicked()), this, SLOT(removeTag()));
-    connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
-}

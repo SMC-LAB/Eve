@@ -1,3 +1,6 @@
+#ifndef TRANSPORT_H
+#define TRANSPORT_H
+
 #include <QWidget>
 #include <QSlider>
 #include <QTimeEdit>
@@ -70,3 +73,5 @@ signals:
     void timeChanged(int val, QTimeEdit *time);
     void fileChanged(mrs_string file, QTableWidget *table);
 };
+
+#endif // TRANSPORT_H

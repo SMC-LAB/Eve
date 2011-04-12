@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
+    newExperiment();
     init_();
     createConnections_();
 }
