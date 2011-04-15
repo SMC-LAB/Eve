@@ -30,6 +30,11 @@ QSqlDatabase Experiment::getDb()
     return db_;
 }
 
+Transport* Experiment::getTransport()
+{
+    return transport_;
+}
+
 void Experiment::init(QString fileName)
 {
     db_ = QSqlDatabase::addDatabase("QSQLITE", "Main");
@@ -140,5 +145,3 @@ void Experiment::removeTag()
     QModelIndex index = table_->currentIndex();
     model_->removeRows(index.row(), 1);
 }
-
-

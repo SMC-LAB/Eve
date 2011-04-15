@@ -20,6 +20,7 @@ public:
     ~Experiment();
     void init(QString fileName);
     QSqlDatabase getDb();
+    Transport* getTransport();
     
 private:
     Ui::Experiment *ui_;

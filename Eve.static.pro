@@ -31,10 +31,9 @@ INCLUDEPATH = $$QT_INSTALL_DIR/include/QtCore         \
               $$MARSYAS_INSTALL_DIR/include/marsyasqt
 
 QMAKE_LIBDIR += $$MARSYAS_INSTALL_DIR/lib $$QT_INSTALL_DIR/lib
-QMAKE_LFLAGS += -static
 
 win32-msvc2005:LIBS += marsyas.lib marsyasqt.lib
-unix:LIBS           += -lmarsyas -lmarsyasqt
+#unix:LIBS           += -lmarsyas -lmarsyasqt
 macx:LIBS           += -framework CoreAudio -framework CoreMidi -framework CoreFoundation
 unix:!macx:LIBS += -lasound -lmp3lame -logg -lvorbisfile
 
