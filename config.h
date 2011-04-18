@@ -1,2 +1,0 @@
-#define EVE_VERSION_MAJOR 0
-#define EVE_VERSION_MINOR 0

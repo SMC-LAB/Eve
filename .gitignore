@@ -8,3 +8,4 @@ ui_*
 CMakeFiles
 cmake_install.cmake
 Eve
+config.h
