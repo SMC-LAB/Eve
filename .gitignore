@@ -4,4 +4,7 @@ QtSimplePlayer
 *o
 moc*
 ui_*
-*app
+*appCMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+Eve
