@@ -1,25 +1,26 @@
+TEMPLATE = app
+
 QT       += core gui sql
 
 TARGET   = Eve
-TEMPLATE = app
 
-SOURCES += main.cpp       \
-           mainwindow.cpp \
-           backend.cpp    \
-           transport.cpp  \
-           tagger.cpp     \
-           experiment.cpp
+SOURCES += src/main.cpp       \
+           src/mainwindow.cpp \
+           src/backend.cpp    \
+           src/transport.cpp  \
+           src/tagger.cpp     \
+           src/experiment.cpp
 
-HEADERS += mainwindow.h   \
-           backend.h      \
-           transport.h    \
-           tagger.h       \
-           experiment.h
+HEADERS += src/mainwindow.h   \
+           src/backend.h      \
+           src/transport.h    \
+           src/tagger.h       \
+           src/experiment.h
 
-FORMS   += mainwindow.ui  \
-           transport.ui   \
-           tagger.ui      \
-           experiment.ui
+FORMS   += src/mainwindow.ui  \
+           src/transport.ui   \
+           src/tagger.ui      \
+           src/experiment.ui
 
 MARSYAS_INSTALL_DIR = /usr/local
 
