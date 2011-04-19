@@ -76,7 +76,7 @@
      <x>0</x>
      <y>0</y>
      <width>477</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -84,7 +84,7 @@
      <string>File</string>
     </property>
     <addaction name="actionNew_Experiment"/>
-    <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Experiment"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="actionQuit"/>
@@ -106,9 +106,9 @@
    <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
-  <action name="actionOpen">
+  <action name="actionOpen_Experiment">
    <property name="text">
-    <string>Open</string>
+    <string>Open Experiment</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>

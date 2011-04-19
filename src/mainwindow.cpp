@@ -33,12 +33,12 @@ void MainWindow::init_()
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->actionPreferences,  SIGNAL(triggered()), this, SLOT(preferences()));
-    connect(ui_->actionAbout_Eve, SIGNAL(triggered()), this, SLOT(about()));
-    connect(ui_->actionNew_Experiment, SIGNAL(triggered()), this, SLOT(newExperiment()));    
-    connect(ui_->actionOpen,  SIGNAL(triggered()), transport_, SLOT(open()));
-    connect(ui_->actionClose, SIGNAL(triggered()), transport_, SLOT(close()));
-    connect(ui_->actionQuit,  SIGNAL(triggered()), transport_, SLOT(quit()));
+    connect(ui_->actionPreferences,     SIGNAL(triggered()), this,       SLOT(preferences()));
+    connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this,       SLOT(about()));
+    connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this,       SLOT(newExperiment()));    
+    connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this,       SLOT(openExperiment()));
+    connect(ui_->actionClose,           SIGNAL(triggered()), transport_, SLOT(close()));
+    connect(ui_->actionQuit,            SIGNAL(triggered()), transport_, SLOT(quit()));
 }
 
 void MainWindow::preferences()
@@ -66,3 +66,13 @@ void MainWindow::newExperiment()
     }
 }
 
+void MainWindow::openExperiment()
+{
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if (!fileName.isEmpty())
+    {
+        experiment_ = new Experiment();
+        experiment_->init(fileName);
+    }
+}
+    

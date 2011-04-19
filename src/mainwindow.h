@@ -28,6 +28,7 @@ private:
 
 private slots:
     void newExperiment();
+    void openExperiment();
     void preferences();
     void about();
 };
