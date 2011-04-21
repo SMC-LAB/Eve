@@ -141,7 +141,7 @@ void Transport::update()
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = osratePtr_->to<mrs_real>();
     
-    qDebug() << pos << endl << size << endl << freq; // FIXME: size does not get updated until MarSystemQtWrapper::pause() is called
+    //qDebug() << pos << endl << size << endl << freq; // FIXME: size does not get updated until MarSystemQtWrapper::pause() is called
 
     int val = SAMPLES_TO_TICKS(pos, size);
     int secs = SAMPLES_TO_SECS(pos, freq);
@@ -181,6 +181,8 @@ void Transport::setTime(int val, QTimeEdit *time)
 
 void Transport::initPlayTable()
 {
+    map<string, soundFile> collectionFileDetails = backend_->getSoundFileInfo();
+
     mrs_string files = allfilenamesPtr_->to<mrs_string>();
     mrs_natural nfiles = numFilesPtr_->to<mrs_natural>();
     mrs_string labels = labelNamesPtr_->to<mrs_string>();
@@ -206,7 +208,7 @@ void Transport::initPlayTable()
         }
 
         table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 0), true);
-    }
+    }    
 }
 
 void Transport::setCurrentFile(mrs_string file, QTableWidget *table)

@@ -49,14 +49,15 @@ void MainWindow::preferences()
 void MainWindow::about()
 {
     qDebug() << "About: ...";
-    QMessageBox::about ( this, "About Eve", "Automated listening tests setup, evaluation and reporting\n"
-                                            "Copyright 2011 Pedro Silva <pasilva@inescporto.pt>\n"
-                                            "Licensed under the GNU General Public License version 3.");
+    QMessageBox::about ( this, tr("About Eve"),
+                         tr("Automated listening tests setup, evaluation and reporting\n"
+                            "Copyright 2011 Pedro Silva <pasilva@inescporto.pt>\n"
+                            "Licensed under the GNU General Public License version 3."));
 }
 
 void MainWindow::newExperiment()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Open Experiment"));
     if (!fileName.isEmpty())
     {
         QFile::remove(fileName);
@@ -68,11 +69,12 @@ void MainWindow::newExperiment()
 
 void MainWindow::openExperiment()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Experiment"), tr("SQLite databases (*.db, *.sqlite, *.sqlite3)"));
     if (!fileName.isEmpty())
     {
         experiment_ = new Experiment();
         experiment_->init(fileName);
+        experiment_->show();
     }
 }
     
