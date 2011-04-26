@@ -6,7 +6,6 @@
 using namespace Marsyas;
 using namespace std;
 
-
 typedef struct
 {
     mrs_string file;
@@ -25,7 +24,7 @@ public:
     ~SimplePlayerBackend();
     MarSystem* getPlaybacknet();
 
-    map<std::string, soundFile> getSoundFileInfo();
+    vector<soundFile> getSoundFileInfo();
 
 private:
     MarSystem* playbacknet;

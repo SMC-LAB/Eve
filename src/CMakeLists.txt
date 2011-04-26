@@ -34,13 +34,12 @@ endif (MARSYAS_FOUND)
 include_directories(${MARSYAS_INCLUDE_DIR} ${MARSYASQT_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
 
 cmake_minimum_required (VERSION 2.6)
-set (CMAKE_BUILD_TYPE Release)
 
-message(${PROJECT_SOURCE_DIR})
-
-#set(CMAKE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
-
-message (${PROJECT_SOURCE_DIR})
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/config.h.in"

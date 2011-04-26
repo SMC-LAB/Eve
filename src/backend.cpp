@@ -20,7 +20,7 @@ MarSystem* SimplePlayerBackend::getPlaybacknet()
     return playbacknet;
 }
 
-map<std::string, soundFile>
+vector<soundFile>
 SimplePlayerBackend::getSoundFileInfo()
 {
     MarSystemManager mng;
@@ -35,18 +35,18 @@ SimplePlayerBackend::getSoundFileInfo()
     
     vector<string> labels = split(labelNames, ',');
     
-    map<string, soundFile> soundFileDetails;
+    vector<soundFile> soundFileDetails;
 
     for (int i = 0; i < numFiles; ++i)
     {
         mrs_string file       = src->getctrl("mrs_string/currentlyPlaying")->to<mrs_string>();
         mrs_natural ilabel    = src->getctrl("mrs_natural/currentLabel")->to<mrs_natural>();
         mrs_natural size      = src->getctrl("mrs_natural/size")->to<mrs_natural>();
-        mrs_real srate        = src->getctrl("mrs_real/osrate")->to<mrs_real>();
         mrs_natural nchannels = src->getctrl("mrs_natural/onObservations")->to<mrs_natural>();
-        
-        soundFile details = {file, labels[ilabel], srate, nchannels, size};
-        soundFileDetails[file] = details;
+        mrs_real srate        = src->getctrl("mrs_real/osrate")->to<mrs_real>();
+
+        soundFile details = {file, labels[ilabel], size, nchannels, srate};
+        soundFileDetails.push_back(details);
 
         src->updControl("mrs_natural/advance", i + 1);
     }

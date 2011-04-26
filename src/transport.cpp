@@ -1,6 +1,7 @@
 #include "ui_transport.h"
 #include "transport.h"
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QTableWidgetSelectionRange>
 #include <QDebug>
 
@@ -106,15 +107,11 @@ void Transport::play()
     {
         mwr_->play();
         ui_->playButton->setText("&Pause");
-    }
-    
+    }    
 }
 
 void Transport::next()
 {
-    cout << cindexPtr_->to<mrs_natural>() << endl;
-    cout << numFilesPtr_->to<mrs_natural>() << endl;
-
     setPos(START_POS);
     mwr_->updctrl(advancePtr_, 1);
 }
@@ -141,7 +138,8 @@ void Transport::update()
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = osratePtr_->to<mrs_real>();
     
-    //qDebug() << pos << endl << size << endl << freq; // FIXME: size does not get updated until MarSystemQtWrapper::pause() is called
+    // FIXME: size does not get updated until MarSystemQtWrapper::pause() is called
+    // qDebug() << pos << endl << size << endl << freq;
 
     int val = SAMPLES_TO_TICKS(pos, size);
     int secs = SAMPLES_TO_SECS(pos, freq);
@@ -181,11 +179,9 @@ void Transport::setTime(int val, QTimeEdit *time)
 
 void Transport::initPlayTable()
 {
-    map<string, soundFile> collectionFileDetails = backend_->getSoundFileInfo();
-
-    mrs_string files = allfilenamesPtr_->to<mrs_string>();
+    mrs_string files   = allfilenamesPtr_->to<mrs_string>();
     mrs_natural nfiles = numFilesPtr_->to<mrs_natural>();
-    mrs_string labels = labelNamesPtr_->to<mrs_string>();
+    mrs_string labels  = labelNamesPtr_->to<mrs_string>();
 
     QTableWidget *table = ui_->playTable;
 
@@ -196,23 +192,48 @@ void Transport::initPlayTable()
     }
     else {
         
-        QStringList fileList = QString::fromStdString(files).split(",");
-        QStringList labelList = QString::fromStdString(labels).split(",");
-
         table->setRowCount(nfiles);
-        table->setColumnCount(1);
+        
+        table->setColumnCount(3);
 
-        for (int i = 0; i < fileList.size(); ++i) {
-            QTableWidgetItem *title = new QTableWidgetItem(fileList.at(i));
-            table->setItem(i, 0, title);
+        vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
+
+        for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
+        {
+            //ref: basename
+            //QFileInfo fi(QString::fromStdString((*iter).file));
+            //fi.fileName()
+
+            int row = iter - collectionFileDetails.begin();
+
+            QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString((*iter).file));
+            table->setItem(row, 0, title);
+
+            QTableWidgetItem *label = new QTableWidgetItem(QString::fromStdString((*iter).label));
+            table->setItem(row, 1, label);
+
+            QTableWidgetItem *duration = new QTableWidgetItem(QString::number((*iter).size / (*iter).srate));
+            table->setItem(row, 2, duration);
         }
-
-        table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 0), true);
+        table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, table->columnCount() - 1), true);
     }    
 }
 
 void Transport::setCurrentFile(mrs_string file, QTableWidget *table)
-{
+ {
     table->clearSelection();
-    table->findItems(QString::fromStdString(file), Qt::MatchExactly).at(0)->setSelected(true);   
+    
+    QList<QTableWidgetItem*> files = table->findItems(QString::fromStdString(file), Qt::MatchExactly);
+
+    if (files.size() != 1)
+    {
+        qDebug() << "There should be exactly 1 file named" << QString::fromStdString(file);
+        qDebug() << "but there are" << files.size() << "files";
+        exit(-1);
+    }
+    else
+    {
+        int row = files.at(0)->row();
+        table->setRangeSelected(QTableWidgetSelectionRange(row, 0, row, table->columnCount() - 1), true);
+    }
 }
