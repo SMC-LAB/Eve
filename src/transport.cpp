@@ -75,8 +75,14 @@ void Transport::createConnections_()
 
 void Transport::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty())
+    open(QFileDialog::getOpenFileName(this));
+}
+
+void Transport::open(QString fileName)
+{
+    QFile file(fileName);
+
+    if (!fileName.isEmpty() && file.exists())
     {
         mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initAudioPtr_, true);
@@ -90,6 +96,7 @@ void Transport::open()
         timer_->start(UPDATE_FREQ);
     }
 }
+    
 
 void Transport::close()
 {

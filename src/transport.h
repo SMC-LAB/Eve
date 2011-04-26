@@ -19,6 +19,7 @@ class Transport : public QWidget
 public:
     explicit Transport(QWidget *parent = 0);
     ~Transport();
+    void open(QString fileName);
 
 private:
     void init_();

@@ -37,6 +37,7 @@ private:
 private slots:
     void addTag();
     void removeTag();
+    void openCollectionFile();
 };
 
 #endif // EXPERIMENT_H

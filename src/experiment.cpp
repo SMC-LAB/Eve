@@ -1,5 +1,6 @@
 #include "experiment.h"
 #include "ui_experiment.h"
+#include <QFileDialog>
 
 Experiment::Experiment(QWidget *parent) :
     QMainWindow(parent),
@@ -21,7 +22,20 @@ void Experiment::createConnections_()
     connect(ui_->addTagPushButton, SIGNAL(clicked()), this, SLOT(addTag()));
     connect(ui_->removeTagPushButton, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(ui_->openCollectionFileButton, SIGNAL(clicked()), transport_, SLOT(open()));
+    connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
+}
+
+void Experiment::openCollectionFile() 
+{
+    QString fileName = ui_->collectionFileLineEdit->text();
+
+    if (fileName.isEmpty())
+    {
+        fileName = QFileDialog::getOpenFileName(this);
+        ui_->collectionFileLineEdit->setText(fileName);
+    }
+    
+    transport_->open(fileName);
 }
 
 
