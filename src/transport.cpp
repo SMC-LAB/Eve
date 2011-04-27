@@ -2,8 +2,8 @@
 #include "transport.h"
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QTableWidgetSelectionRange>
 #include <QDebug>
+#include <QtSql>
 
 #define START_POS 0
 #define START_GAIN 50
@@ -58,6 +58,11 @@ void Transport::init_()
     cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
 }
 
+string Transport::getCollectionFile()
+{
+    return filenamePtr_->to<mrs_string>();
+}
+
 void Transport::createConnections_()
 {
     connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(play()));
@@ -68,7 +73,7 @@ void Transport::createConnections_()
 
     connect(this, SIGNAL(sliderChanged(int, QSlider*)),           this, SLOT(moveSlider(int, QSlider*)));
     connect(this, SIGNAL(timeChanged(int, QTimeEdit*)),           this, SLOT(setTime(int, QTimeEdit*)));
-    connect(this, SIGNAL(fileChanged(mrs_string, QTableWidget*)), this, SLOT(setCurrentFile(mrs_string, QTableWidget*)));
+    connect(this, SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(setCurrentFile(mrs_string, QTableView*)));
 
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
 }
@@ -186,61 +191,46 @@ void Transport::setTime(int val, QTimeEdit *time)
 
 void Transport::initPlayTable()
 {
-    mrs_string files   = allfilenamesPtr_->to<mrs_string>();
-    mrs_natural nfiles = numFilesPtr_->to<mrs_natural>();
-    mrs_string labels  = labelNamesPtr_->to<mrs_string>();
+    QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
-    QTableWidget *table = ui_->playTable;
+    vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
 
-    if (nfiles == 1) {
-        mrs_string file = filenamePtr_->to<mrs_string>();
-        QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString(file));
-        table->setItem(0, 0, title);
-    }
-    else {
+    for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
+    {
+        int row = iter - collectionFileDetails.begin();
+
+        collectionFilesMap_[(*iter).file] = row;
+
+        QFileInfo fi(QString::fromStdString((*iter).file));
         
-        table->setRowCount(nfiles);
-        
-        table->setColumnCount(3);
+        QSqlQuery *stimuliQuery = new QSqlQuery(db_);
+        stimuliQuery->prepare("INSERT INTO Stimuli(ID, Name, Path, Duration, Tagged) VALUES(:ID, :Name, :Path, :Duration, :Tagged);");
+        stimuliQuery->bindValue(":ID", row + 1);
+        stimuliQuery->bindValue(":Name", fi.fileName());
+        stimuliQuery->bindValue(":Path", QString::fromStdString((*iter).file));
+        stimuliQuery->bindValue(":Duration", QString::number((*iter).size / (*iter).srate));
+        stimuliQuery->bindValue(":Tagged", false);
 
-        vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
-
-        for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
-        {
-            //ref: basename
-            //QFileInfo fi(QString::fromStdString((*iter).file));
-            //fi.fileName()
-
-            int row = iter - collectionFileDetails.begin();
-
-            QTableWidgetItem *title = new QTableWidgetItem(QString::fromStdString((*iter).file));
-            table->setItem(row, 0, title);
-
-            QTableWidgetItem *label = new QTableWidgetItem(QString::fromStdString((*iter).label));
-            table->setItem(row, 1, label);
-
-            QTableWidgetItem *duration = new QTableWidgetItem(QString::number((*iter).size / (*iter).srate));
-            table->setItem(row, 2, duration);
-        }
-        table->setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, table->columnCount() - 1), true);
+        if (!stimuliQuery->exec()){
+            qDebug() << stimuliQuery->lastError();
+        }        
     }    
+
+    stimuli_model_ = new QSqlRelationalTableModel(this, db_);
+    stimuli_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    stimuli_model_->setTable("Stimuli");
+    stimuli_model_->select();
+    stimuli_model_->setRelation(5, QSqlRelation("Annotations", "ID", "ID"));
+    stimuli_model_->setRelation(6, QSqlRelation("Descriptors", "ID", "ID"));
+
+    stimuli_table_ = ui_->playTable;
+    stimuli_table_->setModel(stimuli_model_);
+    stimuli_table_->setItemDelegate(new QSqlRelationalDelegate(stimuli_table_));
 }
 
-void Transport::setCurrentFile(mrs_string file, QTableWidget *table)
+void Transport::setCurrentFile(mrs_string file, QTableView *table)
  {
-    table->clearSelection();
-    
-    QList<QTableWidgetItem*> files = table->findItems(QString::fromStdString(file), Qt::MatchExactly);
-
-    if (files.size() != 1)
-    {
-        qDebug() << "There should be exactly 1 file named" << QString::fromStdString(file);
-        qDebug() << "but there are" << files.size() << "files";
-        exit(-1);
-    }
-    else
-    {
-        int row = files.at(0)->row();
-        table->setRangeSelected(QTableWidgetSelectionRange(row, 0, row, table->columnCount() - 1), true);
-    }
+     table->clearSelection();
+     int row = collectionFilesMap_[file];
+     table->selectRow(row);
 }

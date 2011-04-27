@@ -28,7 +28,6 @@ void MainWindow::init_()
 
     llayout->addWidget(transport_);
     rlayout->addWidget(tagger_);
-
 }
 
 void MainWindow::createConnections_()

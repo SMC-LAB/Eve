@@ -1,6 +1,7 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
+#include <QtSql>
 #include <QWidget>
 #include <QSlider>
 #include <QTimeEdit>
@@ -20,7 +21,8 @@ public:
     explicit Transport(QWidget *parent = 0);
     ~Transport();
     void open(QString fileName);
-
+    string getCollectionFile();
+    
 private:
     void init_();
     void createConnections_();
@@ -31,8 +33,12 @@ private:
     SimplePlayerBackend *backend_;
     MarsyasQt::MarSystemQtWrapper *mwr_;
 
+    QSqlRelationalTableModel *stimuli_model_;
+    QTableView *stimuli_table_;
+
     QTimer *timer_;
-    QTableWidget *table_;
+
+    map<mrs_string, int> collectionFilesMap_;
 
     MarControlPtr filenamePtr_;
     MarControlPtr posPtr_;
@@ -67,12 +73,12 @@ private slots:
     void quit();
     void moveSlider(int val, QSlider *slider);
     void setTime(int val, QTimeEdit *time);
-    void setCurrentFile(mrs_string file, QTableWidget *table);
+    void setCurrentFile(mrs_string file, QTableView *table);
 
 signals:
     void sliderChanged(int val, QSlider *slider);
     void timeChanged(int val, QTimeEdit *time);
-    void fileChanged(mrs_string file, QTableWidget *table);
+    void fileChanged(mrs_string file, QTableView *table);
 };
 
 #endif // TRANSPORT_H

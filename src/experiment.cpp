@@ -22,17 +22,20 @@ void Experiment::createConnections_()
     connect(ui_->addTagPushButton, SIGNAL(clicked()), this, SLOT(addTag()));
     connect(ui_->removeTagPushButton, SIGNAL(clicked()), this, SLOT(removeTag()));
     connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->donePushButton_2, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
 }
 
 void Experiment::openCollectionFile() 
 {
     QString fileName = ui_->collectionFileLineEdit->text();
-
-    if (fileName.isEmpty())
+    if (fileName.isEmpty() || fileName == QString::fromStdString(transport_->getCollectionFile()))
     {
         fileName = QFileDialog::getOpenFileName(this);
-        ui_->collectionFileLineEdit->setText(fileName);
+        if (!fileName.isEmpty())
+        {    
+            ui_->collectionFileLineEdit->setText(fileName);
+        }
     }
     
     transport_->open(fileName);
@@ -53,15 +56,13 @@ void Experiment::init(QString fileName)
 {
     db_ = QSqlDatabase::addDatabase("QSQLITE", "Main");
     db_.setDatabaseName(fileName);
-    
+
     if(!db_.open()) {
         qDebug() << db_.lastError();
         exit(-1);
     }
     
-    if (!QFile(fileName).exists()) {
-
-        QSqlQuery query(db_);
+    if (!QFile(fileName).exists() || !QFile(fileName).size()) {
 
         QStringList ddl;
 
@@ -117,6 +118,8 @@ void Experiment::init(QString fileName)
             ");"
             << "INSERT INTO Metadata VALUES(1, \"0.0.1\");";
 
+        QSqlQuery query(db_);
+
         for (QStringList::const_iterator iter = ddl.constBegin(); iter != ddl.constEnd(); ++iter)
         {
             if(!query.exec(*iter))
@@ -134,30 +137,30 @@ void Experiment::init(QString fileName)
 
 void Experiment::populateTagsTable_() 
 {
-    model_ = new QSqlTableModel(this, QSqlDatabase::database("Main"));
-    model_->setEditStrategy(QSqlTableModel::OnFieldChange);
-    model_->setTable("Tags");
-    model_->select();
+    tags_model_ = new QSqlTableModel(this, QSqlDatabase::database("Main"));
+    tags_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    tags_model_->setTable("Tags");
+    tags_model_->select();
 
-    table_ = ui_->editTagsView;
-    table_->setModel(model_);
-    table_->hideColumn(0);
+    tags_table_ = ui_->editTagsView;
+    tags_table_->setModel(tags_model_);
+    tags_table_->hideColumn(0);
 }
 
 void Experiment::populateStimuliTable_() 
 {
     transport_ = new Transport();
-    ui_->verticalLayout_2->addWidget(transport_);
+    ui_->verticalLayout->addWidget(transport_);
 }
 
 void Experiment::addTag() 
 {
-    int row = model_->rowCount();
-    model_->insertRow(row);
+    int row = tags_model_->rowCount();
+    tags_model_->insertRow(row);
 }
 
 void Experiment::removeTag()
 {
-    QModelIndex index = table_->currentIndex();
-    model_->removeRows(index.row(), 1);
+    QModelIndex index = tags_table_->currentIndex();
+    tags_model_->removeRows(index.row(), 1);
 }

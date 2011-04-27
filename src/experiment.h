@@ -27,8 +27,8 @@ private:
     QSqlDatabase db_;
     Transport *transport_;
     
-    QSqlTableModel *model_;
-    QTableView *table_;
+    QSqlTableModel *tags_model_;
+    QTableView *tags_table_;
 
     void createConnections_();
     void populateTagsTable_();
