@@ -94,7 +94,7 @@ void Transport::open(QString fileName)
 
         setPos(START_POS);
         setGain(START_GAIN);
-        initPlayTable();
+        initPlayTable_();
  
         mwr_->start();
 
@@ -119,7 +119,7 @@ void Transport::play()
     {
         mwr_->play();
         ui_->playButton->setText("&Pause");
-    }    
+    }
 }
 
 void Transport::next()
@@ -189,7 +189,7 @@ void Transport::setTime(int val, QTimeEdit *time)
     time->setTime(current);
 }
 
-void Transport::initPlayTable()
+void Transport::initPlayTable_()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
@@ -230,7 +230,7 @@ void Transport::initPlayTable()
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
  {
-     table->clearSelection();
+     //table->clearSelection();
      int row = collectionFilesMap_[file];
      table->selectRow(row);
 }

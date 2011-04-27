@@ -31,7 +31,10 @@
      <item row="0" column="0">
       <widget class="QPushButton" name="previousButton">
        <property name="text">
-        <string>Prev</string>
+        <string>P&amp;rev</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+R</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -53,14 +56,20 @@
         </size>
        </property>
        <property name="text">
-        <string>Play</string>
+        <string>&amp;Play</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+P</string>
        </property>
       </widget>
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="nextButton">
        <property name="text">
-        <string>Next</string>
+        <string>&amp;Next</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+N</string>
        </property>
       </widget>
      </item>

@@ -6,6 +6,7 @@
 #include <QSqlTableModel>
 #include <QtSql>
 #include "transport.h"
+#include "tagger.h"
 
 namespace Ui {
     class Experiment;
@@ -26,17 +27,13 @@ private:
     Ui::Experiment *ui_;
     QSqlDatabase db_;
     Transport *transport_;
+    Tagger *tagger_;
     
-    QSqlTableModel *tags_model_;
-    QTableView *tags_table_;
-
     void createConnections_();
     void populateTagsTable_();
     void populateStimuliTable_();
 
 private slots:
-    void addTag();
-    void removeTag();
     void openCollectionFile();
 };
 

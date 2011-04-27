@@ -19,8 +19,8 @@ Experiment::~Experiment()
 
 void Experiment::createConnections_() 
 {
-    connect(ui_->addTagPushButton, SIGNAL(clicked()), this, SLOT(addTag()));
-    connect(ui_->removeTagPushButton, SIGNAL(clicked()), this, SLOT(removeTag()));
+    connect(ui_->addTagPushButton, SIGNAL(clicked()), tagger_, SLOT(addTag()));
+    connect(ui_->removeTagPushButton, SIGNAL(clicked()), tagger_, SLOT(removeTag()));
     connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->donePushButton_2, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
@@ -137,30 +137,12 @@ void Experiment::init(QString fileName)
 
 void Experiment::populateTagsTable_() 
 {
-    tags_model_ = new QSqlTableModel(this, QSqlDatabase::database("Main"));
-    tags_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
-    tags_model_->setTable("Tags");
-    tags_model_->select();
-
-    tags_table_ = ui_->editTagsView;
-    tags_table_->setModel(tags_model_);
-    tags_table_->hideColumn(0);
+    tagger_ = new Tagger();
+    ui_->verticalLayout_2->addWidget(tagger_);
 }
 
 void Experiment::populateStimuliTable_() 
 {
     transport_ = new Transport();
     ui_->verticalLayout->addWidget(transport_);
-}
-
-void Experiment::addTag() 
-{
-    int row = tags_model_->rowCount();
-    tags_model_->insertRow(row);
-}
-
-void Experiment::removeTag()
-{
-    QModelIndex index = tags_table_->currentIndex();
-    tags_model_->removeRows(index.row(), 1);
 }

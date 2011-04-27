@@ -2,6 +2,9 @@
 #define TAGGER_H
 
 #include <QWidget>
+#include <QtSql>
+#include <QSqlTableModel>
+#include <QTableView>
 
 namespace Ui {
     class Tagger;
@@ -16,8 +19,16 @@ public:
     ~Tagger();
 
 private:
-    void init_();
-    Ui::Tagger *ui_;    
+    void initTagTable_();
+
+    Ui::Tagger *ui_;
+    QSqlTableModel *tags_model_;
+    QTableView *tags_table_;
+
+private slots:
+    void addTag();
+    void removeTag();
+
 };
 
 #endif // TAGGER_H

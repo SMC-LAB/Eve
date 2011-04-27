@@ -1,11 +1,11 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
-#include <QtSql>
 #include <QWidget>
+#include <QtSql>
+#include <QTableView>
 #include <QSlider>
 #include <QTimeEdit>
-#include <QTableWidget>
 #include "MarSystemQtWrapper.h"
 #include "backend.h"
 
@@ -26,7 +26,7 @@ public:
 private:
     void init_();
     void createConnections_();
-    void initPlayTable();
+    void initPlayTable_();
 
     Ui::Transport *ui_;
 

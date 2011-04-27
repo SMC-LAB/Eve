@@ -23,7 +23,6 @@ public:
     SimplePlayerBackend();
     ~SimplePlayerBackend();
     MarSystem* getPlaybacknet();
-
     vector<soundFile> getSoundFileInfo();
 
 private:

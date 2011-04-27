@@ -1,13 +1,12 @@
-#include "tagger.h"
 #include "ui_tagger.h"
-#include <QtSql>
+#include "tagger.h"
 
 Tagger::Tagger(QWidget *parent) :
     QWidget(parent),
     ui_(new Ui::Tagger)
 {
     ui_->setupUi(this);
-    init_();
+    initTagTable_();
 }
 
 Tagger::~Tagger()
@@ -15,30 +14,27 @@ Tagger::~Tagger()
     delete ui_;
 }
 
-void Tagger::init_()
+void Tagger::initTagTable_()
 {
-    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    // db.setDatabaseName("/home/psilva/workspace/ShakeIt/Eve/sql/sqlite.db");
-    // if(!db.open())
-    //     exit(-1);
+    QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
-    // QSqlTableModel *model = new QSqlTableModel;
-    // model->setTable("Tags");
-    // model->select();
+    tags_model_ = new QSqlTableModel(this, db_);
+    tags_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    tags_model_->setTable("Tags");
+    tags_model_->select();
 
-    // for (int i = 0; i < model->rowCount(); ++i) {
-    //     QString name = model->record(i).value("Name").toString();
-    //     int min = model->record(i).value("MinimumValue").toInt();
-    //     int max = model->record(i).value("MaximumValue").toInt();
-    //     QString description = model->record(i).value("Description").toString();
-        
-    //     qDebug() << name << endl
-    //              << min << endl
-    //              << max << endl
-    //              << description;
-    // }
-
-    // QTableView *table = ui_->tagTable;
-    // table->setModel(model);
+    tags_table_ = ui_->tagTable;
+    tags_table_->setModel(tags_model_);
 }
 
+void Tagger::addTag() 
+{
+    int row = tags_model_->rowCount();
+    tags_model_->insertRow(row);
+}
+
+void Tagger::removeTag()
+{
+    QModelIndex index = tags_table_->currentIndex();
+    tags_model_->removeRows(index.row(), 1);
+}
