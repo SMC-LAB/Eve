@@ -37,6 +37,10 @@ void Experiment::openCollectionFile()
             ui_->collectionFileLineEdit->setText(fileName);
         }
     }
+
+    // TODO: this should be optional, based on preferences.
+    QSqlQuery *emptyTable = new QSqlQuery("DELETE * FROM Stimuli;", db_);
+    emptyTable->exec();
     
     transport_->open(fileName);
 }

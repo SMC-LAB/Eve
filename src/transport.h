@@ -27,7 +27,8 @@ private:
     void init_();
     void createConnections_();
     void initPlayTable_();
-
+    void populateDb_(QSqlDatabase db_);
+    
     Ui::Transport *ui_;
 
     SimplePlayerBackend *backend_;

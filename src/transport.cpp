@@ -85,23 +85,21 @@ void Transport::open()
 
 void Transport::open(QString fileName)
 {
-    QFile file(fileName);
-
-    if (!fileName.isEmpty() && file.exists())
+    if (!fileName.isEmpty() && QFile(fileName).exists())
     {
         mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
         mwr_->updctrl(initAudioPtr_, true);
 
         setPos(START_POS);
         setGain(START_GAIN);
+
         initPlayTable_();
  
         mwr_->start();
 
         timer_->start(UPDATE_FREQ);
     }
-}
-    
+}    
 
 void Transport::close()
 {
@@ -193,29 +191,8 @@ void Transport::initPlayTable_()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
-    vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
-
-    for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
-    {
-        int row = iter - collectionFileDetails.begin();
-
-        collectionFilesMap_[(*iter).file] = row;
-
-        QFileInfo fi(QString::fromStdString((*iter).file));
-        
-        QSqlQuery *stimuliQuery = new QSqlQuery(db_);
-        stimuliQuery->prepare("INSERT INTO Stimuli(ID, Name, Path, Duration, Tagged) VALUES(:ID, :Name, :Path, :Duration, :Tagged);");
-        stimuliQuery->bindValue(":ID", row + 1);
-        stimuliQuery->bindValue(":Name", fi.fileName());
-        stimuliQuery->bindValue(":Path", QString::fromStdString((*iter).file));
-        stimuliQuery->bindValue(":Duration", QString::number((*iter).size / (*iter).srate));
-        stimuliQuery->bindValue(":Tagged", false);
-
-        if (!stimuliQuery->exec()){
-            qDebug() << stimuliQuery->lastError();
-        }        
-    }    
-
+    populateDb_(db_);
+    
     stimuli_model_ = new QSqlRelationalTableModel(this, db_);
     stimuli_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
     stimuli_model_->setTable("Stimuli");
@@ -226,6 +203,37 @@ void Transport::initPlayTable_()
     stimuli_table_ = ui_->playTable;
     stimuli_table_->setModel(stimuli_model_);
     stimuli_table_->setItemDelegate(new QSqlRelationalDelegate(stimuli_table_));
+}
+
+void Transport::populateDb_(QSqlDatabase db_)
+{
+    vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
+
+    QSqlQuery countStimuli("SELECT COUNT(ID) FROM Stimuli;", db_);
+    countStimuli.next();
+    int row_offset = countStimuli.value(0).toInt();
+
+    for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
+    {
+        int row = iter - collectionFileDetails.begin() + 1 + row_offset;
+
+        collectionFilesMap_[(*iter).file] = row;
+
+        QFileInfo fi(QString::fromStdString((*iter).file));
+        
+        QSqlQuery *stimuliQuery = new QSqlQuery(db_);
+        stimuliQuery->prepare("INSERT INTO Stimuli(ID, Name, Path, Duration, Tagged) VALUES(:ID, :Name, :Path, :Duration, :Tagged);");
+        stimuliQuery->bindValue(":ID", row);
+        stimuliQuery->bindValue(":Name", fi.fileName());
+        stimuliQuery->bindValue(":Path", QString::fromStdString((*iter).file));
+        stimuliQuery->bindValue(":Duration", QString::number((*iter).size / (*iter).srate));
+        stimuliQuery->bindValue(":Tagged", false);
+
+        if (!stimuliQuery->exec()){
+            qDebug() << stimuliQuery->lastError();
+            exit(-1);
+        }        
+    }
 }
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
