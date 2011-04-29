@@ -147,6 +147,9 @@
    <property name="text">
     <string>About Eve</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
   </action>
   <action name="actionNew_Experiment">
    <property name="text">

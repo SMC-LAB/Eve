@@ -28,20 +28,38 @@ void Experiment::createConnections_()
 
 void Experiment::openCollectionFile() 
 {
-    QString fileName = ui_->collectionFileLineEdit->text();
-    if (fileName.isEmpty() || fileName == QString::fromStdString(transport_->getCollectionFile()))
+    QSqlQuery getCollectionFile("SELECT CollectionFile FROM Metadata;", db_);
+    getCollectionFile.next();    
+
+    QString fileName = getCollectionFile.value(0).toString();
+   
+    if (fileName.isEmpty())
     {
-        fileName = QFileDialog::getOpenFileName(this);
-        if (!fileName.isEmpty())
-        {    
-            ui_->collectionFileLineEdit->setText(fileName);
+        fileName = ui_->collectionFileLineEdit->text();
+        if (fileName.isEmpty() || fileName == QString::fromStdString(transport_->getCollectionFile()))
+        {
+            fileName = QFileDialog::getOpenFileName(this);
+            if (!fileName.isEmpty())
+            {    
+                ui_->collectionFileLineEdit->setText(fileName);
+            }
         }
+
+        // TODO: this should be optional, based on preferences.
+        QSqlQuery *emptyTable = new QSqlQuery("DELETE * FROM Stimuli;", db_);
+        emptyTable->exec();
     }
 
-    // TODO: this should be optional, based on preferences.
-    QSqlQuery *emptyTable = new QSqlQuery("DELETE * FROM Stimuli;", db_);
-    emptyTable->exec();
+    QSqlQuery *setCollectionFile = new QSqlQuery(db_);
+    setCollectionFile->prepare("UPDATE Metadata SET CollectionFile=:CollectionFile;");
+    setCollectionFile->bindValue(":CollectionFile", fileName);
     
+    if (!setCollectionFile->exec()){
+        qDebug() << setCollectionFile->lastError();
+        exit(-1);
+    }        
+
+    ui_->collectionFileLineEdit->setText(fileName);
     transport_->open(fileName);
 }
 
@@ -118,9 +136,10 @@ void Experiment::init(QString fileName)
             ");"
             << "CREATE TABLE Metadata ("
             "    ID      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-            "    Version TEXT NOT NULL"
+            "    Version TEXT,"
+            "    CollectionFile TEXT"
             ");"
-            << "INSERT INTO Metadata VALUES(1, \"0.0.1\");";
+            << "INSERT INTO Metadata(ID, Version) VALUES(1, \"0.0.2\");";
 
         QSqlQuery query(db_);
 

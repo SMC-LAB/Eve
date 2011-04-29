@@ -73,6 +73,7 @@ void MainWindow::openExperiment()
     {
         experiment_ = new Experiment();
         experiment_->init(fileName);
+        experiment_->openCollectionFile();
         experiment_->show();
     }
 }

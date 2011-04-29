@@ -33,7 +33,7 @@ private:
     void populateTagsTable_();
     void populateStimuliTable_();
 
-private slots:
+public slots:
     void openCollectionFile();
 };
 

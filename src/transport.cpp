@@ -71,8 +71,8 @@ void Transport::createConnections_()
     connect(ui_->gainSlider,     SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
     connect(ui_->posSlider,      SIGNAL(sliderMoved(int)), this, SLOT(setPos(int)));
 
-    connect(this, SIGNAL(sliderChanged(int, QSlider*)),           this, SLOT(moveSlider(int, QSlider*)));
-    connect(this, SIGNAL(timeChanged(int, QTimeEdit*)),           this, SLOT(setTime(int, QTimeEdit*)));
+    connect(this, SIGNAL(sliderChanged(int, QSlider*)),         this, SLOT(moveSlider(int, QSlider*)));
+    connect(this, SIGNAL(timeChanged(int, QTimeEdit*)),         this, SLOT(setTime(int, QTimeEdit*)));
     connect(this, SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(setCurrentFile(mrs_string, QTableView*)));
 
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
@@ -94,9 +94,8 @@ void Transport::open(QString fileName)
         setGain(START_GAIN);
 
         initPlayTable_();
- 
+        
         mwr_->start();
-
         timer_->start(UPDATE_FREQ);
     }
 }    
@@ -191,7 +190,11 @@ void Transport::initPlayTable_()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
-    populateDb_(db_);
+    QSqlQuery getCollectionFile("SELECT CollectionFile FROM Metadata;", db_);
+
+    if (!getCollectionFile.size()) {
+        populateDb_(db_);
+    }
     
     stimuli_model_ = new QSqlRelationalTableModel(this, db_);
     stimuli_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
@@ -237,8 +240,7 @@ void Transport::populateDb_(QSqlDatabase db_)
 }
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
- {
-     //table->clearSelection();
+{
      int row = collectionFilesMap_[file];
      table->selectRow(row);
 }

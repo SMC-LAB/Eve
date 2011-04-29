@@ -66,10 +66,10 @@
      <item row="0" column="2">
       <widget class="QPushButton" name="nextButton">
        <property name="text">
-        <string>&amp;Next</string>
+        <string>N&amp;ext</string>
        </property>
        <property name="shortcut">
-        <string>Ctrl+N</string>
+        <string>Ctrl+E</string>
        </property>
       </widget>
      </item>
