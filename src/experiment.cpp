@@ -50,15 +50,6 @@ void Experiment::openCollectionFile()
         emptyTable->exec();
     }
 
-    QSqlQuery *setCollectionFile = new QSqlQuery(db_);
-    setCollectionFile->prepare("UPDATE Metadata SET CollectionFile=:CollectionFile;");
-    setCollectionFile->bindValue(":CollectionFile", fileName);
-    
-    if (!setCollectionFile->exec()){
-        qDebug() << setCollectionFile->lastError();
-        exit(-1);
-    }        
-
     ui_->collectionFileLineEdit->setText(fileName);
     transport_->open(fileName);
 }

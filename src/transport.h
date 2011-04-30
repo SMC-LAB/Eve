@@ -26,7 +26,7 @@ public:
 private:
     void init_();
     void createConnections_();
-    void initPlayTable_();
+    void initPlayTable_(QString fileName);
     void populateDb_(QSqlDatabase db_);
     
     Ui::Transport *ui_;

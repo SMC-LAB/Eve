@@ -93,7 +93,7 @@ void Transport::open(QString fileName)
         setPos(START_POS);
         setGain(START_GAIN);
 
-        initPlayTable_();
+        initPlayTable_(fileName);
         
         mwr_->start();
         timer_->start(UPDATE_FREQ);
@@ -186,14 +186,24 @@ void Transport::setTime(int val, QTimeEdit *time)
     time->setTime(current);
 }
 
-void Transport::initPlayTable_()
+void Transport::initPlayTable_(QString fileName)
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
     QSqlQuery getCollectionFile("SELECT CollectionFile FROM Metadata;", db_);
+    getCollectionFile.next();
 
-    if (!getCollectionFile.size()) {
+    if (getCollectionFile.value(0).toString().isEmpty()) {
         populateDb_(db_);
+
+        QSqlQuery *setCollectionFile = new QSqlQuery(db_);
+        setCollectionFile->prepare("UPDATE Metadata SET CollectionFile=:CollectionFile;");
+        setCollectionFile->bindValue(":CollectionFile", fileName);
+
+        if (!setCollectionFile->exec()){
+            qDebug() << setCollectionFile->lastError();
+            exit(-1);
+        }
     }
     
     stimuli_model_ = new QSqlRelationalTableModel(this, db_);
