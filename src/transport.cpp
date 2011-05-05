@@ -22,6 +22,7 @@ Transport::Transport(QWidget *parent) :
 
 Transport::~Transport()
 {
+    close();
     delete ui_;
     delete backend_;
     delete mwr_;
@@ -58,11 +59,6 @@ void Transport::init_()
     cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
 }
 
-string Transport::getCollectionFile()
-{
-    return filenamePtr_->to<mrs_string>();
-}
-
 void Transport::createConnections_()
 {
     connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(play()));
@@ -78,16 +74,26 @@ void Transport::createConnections_()
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
 }
 
+string Transport::getCollectionFile()
+{
+    return filenamePtr_->to<mrs_string>();
+}
+
 void Transport::open()
 {
-    open(QFileDialog::getOpenFileName(this));
+    mrs_string fileName = filenamePtr_->to<mrs_string>();
+    
+    if (QString::fromStdString(fileName).isEmpty())
+    {
+        Transport::open(QFileDialog::getOpenFileName(this));
+    }
 }
 
 void Transport::open(QString fileName)
 {
     if (!fileName.isEmpty() && QFile(fileName).exists())
     {
-        mwr_->updctrl(filenamePtr_, (fileName.toUtf8().constData()));
+        mwr_->updctrl(filenamePtr_, (fileName.toStdString()));
         mwr_->updctrl(initAudioPtr_, true);
 
         setPos(START_POS);
@@ -98,7 +104,7 @@ void Transport::open(QString fileName)
         mwr_->start();
         timer_->start(UPDATE_FREQ);
     }
-}    
+}
 
 void Transport::close()
 {
@@ -131,18 +137,15 @@ void Transport::previous()
     mwr_->updctrl(advancePtr_, -1);
 }
 
-void Transport::quit()
-{
-    close();
-    exit(0);
-}
-
 void Transport::update()
 {
     if (!hasDataPtr_->to<mrs_bool>())
+    {
         close();
-    
+    }
+
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
+
     mrs_natural pos = posPtr_->to<mrs_natural>();
     mrs_natural size = sizePtr_->to<mrs_natural>();
     mrs_real freq = osratePtr_->to<mrs_real>();
@@ -158,7 +161,6 @@ void Transport::update()
     emit fileChanged(file, ui_->playTable);
 }
 
-
 void Transport::setPos(int val)
 {
     float fval = val / 100.0f;
@@ -169,6 +171,8 @@ void Transport::setPos(int val)
 
 void Transport::setGain(int val)
 {
+    // FIXME: Gain setting stopped working
+    //        updctrl is working fine - don't know what problem is
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
     emit sliderChanged(val, ui_->gainSlider);

@@ -8,7 +8,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
-    init_();
     createConnections_();
 }
 
@@ -18,10 +17,10 @@ MainWindow::~MainWindow()
     delete transport_;
 }
 
-void MainWindow::init_() 
+void MainWindow::init() 
 {
-    transport_ = new Transport();
-    tagger_ = new Tagger();
+    transport_ = experiment_->getTransport();
+    tagger_ = experiment_->getTagger();
 
     QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
     QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
@@ -32,13 +31,28 @@ void MainWindow::init_()
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->actionPreferences,     SIGNAL(triggered()), this,       SLOT(preferences()));
-    connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this,       SLOT(about()));
-    connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this,       SLOT(newExperiment()));    
-    connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this,       SLOT(openExperiment()));
-    connect(ui_->actionClose,           SIGNAL(triggered()), transport_, SLOT(close()));
-    connect(ui_->actionQuit,            SIGNAL(triggered()), transport_, SLOT(quit()));
+    connect(ui_->actionPreferences,     SIGNAL(triggered()), this, SLOT(preferences()));
+    connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this, SLOT(about()));
+    connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this, SLOT(newExperiment()));    
+    connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this, SLOT(openExperiment()));
+    connect(ui_->actionClose,           SIGNAL(triggered()), this, SLOT(close()));
+    connect(ui_->actionQuit,            SIGNAL(triggered()), this, SLOT(quit()));
 }
+
+void MainWindow::close()
+{
+    if (transport_)
+    {
+        transport_->close();
+    }
+
+}
+
+void MainWindow::quit()
+{
+    close();
+    exit(0);
+}           
 
 void MainWindow::preferences()
 {
@@ -56,7 +70,10 @@ void MainWindow::about()
 
 void MainWindow::newExperiment()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Open Experiment"));
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        tr("Open Experiment"));
+
     if (!fileName.isEmpty())
     {
         QFile::remove(fileName);
@@ -64,11 +81,17 @@ void MainWindow::newExperiment()
         experiment_->init(fileName);
         experiment_->show();
     }
+
+    connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
 }
 
 void MainWindow::openExperiment()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Experiment"), tr("SQLite databases (*.db, *.sqlite, *.sqlite3)"));
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        tr("Open Experiment"), 
+        tr("SQLite databases (*.db, *.sqlite, *.sqlite3)"));
+
     if (!fileName.isEmpty())
     {
         experiment_ = new Experiment();
@@ -76,5 +99,7 @@ void MainWindow::openExperiment()
         experiment_->openCollectionFile();
         experiment_->show();
     }
+
+    connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
 }
     

@@ -21,6 +21,8 @@ public:
     explicit Transport(QWidget *parent = 0);
     ~Transport();
     void open(QString fileName);
+    void open();
+    void close();
     string getCollectionFile();
     
 private:
@@ -63,15 +65,12 @@ private:
     MarControlPtr cindexPtr_;
 
 private slots:
-    void open();
-    void close();
     void play();
     void previous();
     void next();
     void setGain(int val);
     void update();
     void setPos(int val); 
-    void quit();
     void moveSlider(int val, QSlider *slider);
     void setTime(int val, QTimeEdit *time);
     void setCurrentFile(mrs_string file, QTableView *table);

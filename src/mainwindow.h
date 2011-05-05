@@ -17,7 +17,6 @@ public:
     ~MainWindow();
     
 private:
-    void init_();
     void createConnections_();
 
     Ui::MainWindow *ui_;
@@ -29,6 +28,9 @@ private:
 private slots:
     void newExperiment();
     void openExperiment();
+    void close();
+    void quit();
     void preferences();
     void about();
+    void init();
 };

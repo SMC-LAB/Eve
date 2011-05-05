@@ -22,6 +22,7 @@ public:
     void init(QString fileName);
     QSqlDatabase getDb();
     Transport* getTransport();
+    Tagger* getTagger();
     
 private:
     Ui::Experiment *ui_;
@@ -35,6 +36,11 @@ private:
 
 public slots:
     void openCollectionFile();
+    void close();
+
+signals:
+    void experimentConfigured();
+
 };
 
 #endif // EXPERIMENT_H

@@ -19,10 +19,10 @@ Experiment::~Experiment()
 
 void Experiment::createConnections_() 
 {
-    connect(ui_->addTagPushButton, SIGNAL(clicked()), tagger_, SLOT(addTag()));
-    connect(ui_->removeTagPushButton, SIGNAL(clicked()), tagger_, SLOT(removeTag()));
-    connect(ui_->donePushButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(ui_->donePushButton_2, SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->addTagPushButton,         SIGNAL(clicked()), tagger_, SLOT(addTag()));
+    connect(ui_->removeTagPushButton,      SIGNAL(clicked()), tagger_, SLOT(removeTag()));
+    connect(ui_->donePushButton,           SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->donePushButton_2,         SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
 }
 
@@ -36,9 +36,14 @@ void Experiment::openCollectionFile()
     if (fileName.isEmpty())
     {
         fileName = ui_->collectionFileLineEdit->text();
+
         if (fileName.isEmpty() || fileName == QString::fromStdString(transport_->getCollectionFile()))
         {
-            fileName = QFileDialog::getOpenFileName(this);
+            fileName = QFileDialog::getOpenFileName(
+                this,
+                tr("Open Collection File"), 
+                tr("Marsyas Collection Files (*.mf)"));
+
             if (!fileName.isEmpty())
             {    
                 ui_->collectionFileLineEdit->setText(fileName);
@@ -51,6 +56,7 @@ void Experiment::openCollectionFile()
     }
 
     ui_->collectionFileLineEdit->setText(fileName);
+
     transport_->open(fileName);
 }
 
@@ -63,6 +69,11 @@ QSqlDatabase Experiment::getDb()
 Transport* Experiment::getTransport()
 {
     return transport_;
+}
+
+Tagger* Experiment::getTagger()
+{
+    return tagger_;
 }
 
 void Experiment::init(QString fileName)
@@ -160,3 +171,12 @@ void Experiment::populateStimuliTable_()
     transport_ = new Transport();
     ui_->verticalLayout->addWidget(transport_);
 }
+
+void Experiment::close()
+{
+    ui_->verticalLayout->removeWidget(transport_);
+    ui_->verticalLayout_2->removeWidget(tagger_);
+    this->hide();
+    emit experimentConfigured();
+}
+
