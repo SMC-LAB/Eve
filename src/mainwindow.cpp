@@ -25,6 +25,8 @@ void MainWindow::init()
     QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
     QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
 
+    tagger_->setCustomDelegate();
+
     llayout->addWidget(transport_);
     rlayout->addWidget(tagger_);
 }
@@ -102,4 +104,3 @@ void MainWindow::openExperiment()
 
     connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
 }
-    

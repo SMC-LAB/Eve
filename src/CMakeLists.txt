@@ -81,6 +81,7 @@ set(APP_SOURCES
   transport.cpp
   tagger.cpp
   experiment.cpp
+  delegates.cpp
   )
 
 set(APP_HEADERS
@@ -89,6 +90,7 @@ set(APP_HEADERS
   transport.h
   tagger.h
   experiment.h
+  delegates.h
   )
 
 set(APP_FORMS

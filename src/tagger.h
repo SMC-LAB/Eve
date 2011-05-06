@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QtSql>
-#include <QSqlTableModel>
+#include <QSqlRelationalTableModel>
 #include <QTableView>
 
 namespace Ui {
@@ -17,12 +17,14 @@ class Tagger : public QWidget
 public:
     explicit Tagger(QWidget *parent = 0);
     ~Tagger();
+    void setCustomDelegate();
 
 private:
     void initTagTable_();
-
+    void initTagWidget_();
+    
     Ui::Tagger *ui_;
-    QSqlTableModel *tags_model_;
+    QSqlRelationalTableModel *tags_model_;
     QTableView *tags_table_;
 
 private slots:
