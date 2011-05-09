@@ -24,6 +24,7 @@ public:
     void open();
     void close();
     string getCollectionFile();
+    int getCurrentFileId();
     
 private:
     void init_();

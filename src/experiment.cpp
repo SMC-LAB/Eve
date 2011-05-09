@@ -24,6 +24,8 @@ void Experiment::createConnections_()
     connect(ui_->donePushButton,           SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->donePushButton_2,         SIGNAL(clicked()), this, SLOT(close()));
     connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
+
+    connect(tagger_, SIGNAL(updatedValue(QString, int, QString)), this, SLOT(updateValue(QString, int, QString)));
 }
 
 void Experiment::openCollectionFile() 
@@ -157,7 +159,25 @@ void Experiment::init(QString fileName)
 
     populateTagsTable_();
     populateStimuliTable_();
-    createConnections_();
+    createConnections_();    
+}
+
+void Experiment::updateValue(QString tag, int rating, QString note = "")
+{
+    QSqlQuery updateQuery("UPDATE ", db_);
+    
+    QSqlQuery *setTagRating = new QSqlQuery(db_);
+    setTagRating->prepare("INSERT INTO Experiments(StimuliID, Tag, Rating, Note) VALUES(:StimuliID, :Tag, :Rating, :Note);");
+    setTagRating->bindValue(":StimuliID", transport_->getCurrentFileId());
+    setTagRating->bindValue(":Tag", tag);
+    setTagRating->bindValue(":Rating", rating);
+    setTagRating->bindValue(":Note", note);
+
+    if (!setTagRating->exec())
+    {
+        qDebug() << setTagRating->lastError();
+        exit(-1);
+    }
 }
 
 void Experiment::populateTagsTable_() 

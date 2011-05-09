@@ -58,7 +58,7 @@ void MainWindow::quit()
 
 void MainWindow::preferences()
 {
-    qDebug() << "Preferences: ...";
+    qDebug() << "Preferences: none yet!";
 }
 
 void MainWindow::about()

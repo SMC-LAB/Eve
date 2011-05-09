@@ -19,6 +19,9 @@ public:
     ~Tagger();
     void setCustomDelegate();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private:
     void initTagTable_();
     void initTagWidget_();
@@ -30,7 +33,13 @@ private:
 private slots:
     void addTag();
     void removeTag();
+    void setTagInfo(QString name, QString description);
+    void updateValue(int val);
+
+signals:
+    void hoverOverTag(QString name, QString description);
+    void sliderChanged(int value);
+    void updatedValue(QString tag, int value, QString note);
 
 };
-
 #endif // TAGGER_H

@@ -258,3 +258,16 @@ void Transport::setCurrentFile(mrs_string file, QTableView *table)
      int row = collectionFilesMap_[file];
      table->selectRow(row);
 }
+
+int Transport::getCurrentFileId()
+{
+    mrs_string currentlyPlaying = currentlyPlayingPtr_->to<mrs_string>();
+
+    QSqlDatabase db_ = QSqlDatabase::database("Main");
+    QSqlQuery *idQuery = new QSqlQuery("SELECT ID FROM Stimuli WHERE Path=:Path", db_);
+    idQuery->bindValue(":Path", QString::fromStdString(currentlyPlaying));
+    idQuery->exec();
+    idQuery->next();
+
+    return idQuery->value(0).toInt();
+}

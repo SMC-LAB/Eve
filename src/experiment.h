@@ -37,6 +37,7 @@ private:
 public slots:
     void openCollectionFile();
     void close();
+    void updateValue(QString tag, int rating, QString note);
 
 signals:
     void experimentConfigured();
