@@ -9,7 +9,7 @@ Tagger::Tagger(QWidget *parent) :
     ui_(new Ui::Tagger)
 {
     ui_->setupUi(this);
-    initTagTable_();
+    initTagTable();
 }
 
 Tagger::~Tagger()
@@ -17,7 +17,7 @@ Tagger::~Tagger()
     delete ui_;
 }
 
-void Tagger::initTagTable_()
+void Tagger::initTagTable()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
@@ -33,16 +33,13 @@ void Tagger::initTagTable_()
     ui_->verticalLayout_3->addWidget(tags_table_);
 }
 
-void Tagger::setCustomDelegate()
-{
-    initTagWidget_();
-}
-
-void Tagger::initTagWidget_()
+void Tagger::initTagWidget()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
     QSqlQuery getTags("SELECT * FROM Tags;", db_);
 
+    ui_->verticalLayout_3->removeWidget(tags_table_);
+    
     while (getTags.next())
     {
         QString tagName = getTags.value(1).toString();
@@ -83,7 +80,6 @@ void Tagger::initTagWidget_()
         hlayout->addWidget(description);
 
         tags_table_->hide();
-        ui_->verticalLayout_3->removeWidget(tags_table_);
         ui_->verticalLayout_3->addWidget(nestedWidget);
     }
     
@@ -130,7 +126,21 @@ bool Tagger::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
-    else {
+    else
+    {
         return QObject::eventFilter(obj, event);
+    }
+}
+
+static void remoteLayoutChildren(QLayout *layout, int fromIndex)
+{
+    QLayoutItem *child;
+    QWidget *childWidget;
+    
+    while ((child = layout->takeAt(fromIndex)) != 0)
+    {
+        childWidget = child->widget();
+        delete childWidget;
+        delete child;
     }
 }

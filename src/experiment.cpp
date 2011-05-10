@@ -80,8 +80,11 @@ Tagger* Experiment::getTagger()
 
 void Experiment::init(QString fileName)
 {
-    db_ = QSqlDatabase::addDatabase("QSQLITE", "Main");
-    db_.setDatabaseName(fileName);
+    if (!db_.isValid())
+    {
+        db_ = QSqlDatabase::addDatabase("QSQLITE", "Main");
+        db_.setDatabaseName(fileName);
+    }
 
     if(!db_.open()) {
         qDebug() << db_.lastError();
@@ -182,13 +185,13 @@ void Experiment::updateValue(QString tag, int rating, QString note = "")
 
 void Experiment::populateTagsTable_() 
 {
-    tagger_ = new Tagger();
+    tagger_ = Tagger::getInstance();
     ui_->verticalLayout_2->addWidget(tagger_);
 }
 
 void Experiment::populateStimuliTable_() 
 {
-    transport_ = new Transport();
+    transport_ = Transport::getInstance();
     ui_->verticalLayout->addWidget(transport_);
 }
 

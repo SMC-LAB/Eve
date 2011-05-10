@@ -19,15 +19,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::init() 
 {
+    static QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
     transport_ = experiment_->getTransport();
-    tagger_ = experiment_->getTagger();
-
-    QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
-    QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
-
-    tagger_->setCustomDelegate();
-
     llayout->addWidget(transport_);
+    
+    static QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
+    tagger_ = experiment_->getTagger();
+    tagger_->initTagWidget();
     rlayout->addWidget(tagger_);
 }
 
@@ -79,12 +77,14 @@ void MainWindow::newExperiment()
     if (!fileName.isEmpty())
     {
         QFile::remove(fileName);
-        experiment_ = new Experiment();
+        if (!experiment_)
+        {
+            experiment_ = new Experiment();
+        }
         experiment_->init(fileName);
         experiment_->show();
+        connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
     }
-
-    connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
 }
 
 void MainWindow::openExperiment()
@@ -96,11 +96,14 @@ void MainWindow::openExperiment()
 
     if (!fileName.isEmpty())
     {
-        experiment_ = new Experiment();
+        if (!experiment_)
+        {
+            experiment_ = new Experiment();
+        }
+        
         experiment_->init(fileName);
         experiment_->openCollectionFile();
         experiment_->show();
+        connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
     }
-
-    connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
 }

@@ -18,7 +18,11 @@ class Transport : public QWidget
     Q_OBJECT
 
 public:
-    explicit Transport(QWidget *parent = 0);
+    static Transport* getInstance()
+    {
+        static Transport* instance = new Transport();
+        return instance;
+    }
     ~Transport();
     void open(QString fileName);
     void open();
@@ -27,6 +31,10 @@ public:
     int getCurrentFileId();
     
 private:
+    explicit Transport(QWidget *parent = 0);
+    Transport(Transport const& copy);
+    Transport& operator=(Transport const& copy);
+    
     void init_();
     void createConnections_();
     void initPlayTable_(QString fileName);

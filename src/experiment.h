@@ -30,9 +30,9 @@ private:
     Transport *transport_;
     Tagger *tagger_;
     
-    void createConnections_();
     void populateTagsTable_();
     void populateStimuliTable_();
+    void createConnections_();
 
 public slots:
     void openCollectionFile();

@@ -10,22 +10,27 @@ namespace Ui {
     class Tagger;
 }
 
+static void remoteLayoutChildren(QLayout *layout, int fromIndex);
+
 class Tagger : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Tagger(QWidget *parent = 0);
+    static Tagger* getInstance()
+    {
+        static Tagger* instance = new Tagger();
+        return instance;
+    }
     ~Tagger();
-    void setCustomDelegate();
+    void initTagTable();
+    void initTagWidget();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    void initTagTable_();
-    void initTagWidget_();
-    
+    explicit Tagger(QWidget *parent = 0);
     Ui::Tagger *ui_;
     QSqlRelationalTableModel *tags_model_;
     QTableView *tags_table_;
