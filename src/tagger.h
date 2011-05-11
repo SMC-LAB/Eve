@@ -34,13 +34,16 @@ private:
     Ui::Tagger *ui_;
     QSqlRelationalTableModel *tags_model_;
     QTableView *tags_table_;
+    mrs_string currentFileName_;
+    int getMaxTagWidth_();
+                                
 
 private slots:
     void addTag();
     void removeTag();
     void setTagInfo(QString name, QString description);
     void updateValue(int val);
-    void updateSliders(mrs_string, QTableView* ignoreMe);
+    void updateSliders(mrs_string fileName, QTableView* ignoreMe);
 
 signals:
     void hoverOverTag(QString name, QString description);

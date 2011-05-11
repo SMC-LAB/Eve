@@ -14,6 +14,7 @@ Tagger::Tagger(QWidget *parent) :
 {
     ui_->setupUi(this);
     initTagTable();
+    currentFileName_ = "";
 }
 
 Tagger::~Tagger()
@@ -41,8 +42,15 @@ void Tagger::initTagTable()
     ui_->verticalLayout_3->addWidget(tags_table_);
 }
 
-void Tagger::updateSliders(mrs_string, QTableView* ignoreMe)
+void Tagger::updateSliders(mrs_string fileName, QTableView* ignoreMe)
 {
+    if (fileName == currentFileName_)
+    {
+        return;
+    }
+
+    currentFileName_ = fileName;
+
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
     QSqlQuery getTags("SELECT * FROM Tags;", db_);
 
@@ -63,6 +71,23 @@ void Tagger::updateSliders(mrs_string, QTableView* ignoreMe)
     }       
 }
 
+int Tagger::getMaxTagWidth_()
+{
+    QSqlDatabase db_ = QSqlDatabase::database("Main");    
+    QSqlQuery getTags("SELECT * FROM Tags;", db_);
+    
+    int max = -1;
+    
+    while (getTags.next())
+    {
+        int tagName = getTags.value(1).toString().size();
+        if (tagName > max)
+        {
+            max = tagName;
+        }
+    }
+    return max;
+}
 
 void Tagger::initTagWidget()
 {
@@ -101,7 +126,7 @@ void Tagger::initTagWidget()
 
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
         
-        QLabel *name = new QLabel(tagName);
+        QLabel *name = new QLabel(QString("%1").arg(tagName, getMaxTagWidth_()));
         QLabel *description = new QLabel(tagDesc);
         description->hide();
         
