@@ -1,6 +1,9 @@
 #include "ui_tagger.h"
 #include "tagger.h"
 #include "util.h"
+#include "experiment.h"
+#include "transport.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -62,11 +65,16 @@ void Tagger::initTagWidget()
         slider->setTickPosition(QSlider::TicksBelow);
         slider->setTracking(false);
         slider->setPageStep(1);
-
         
+        if (int rating = Experiment::getInstance()->getValue(tagName))
+        {                        
+            slider->setValue(rating);
+        }
+        else
+        {
+            slider->setValue(tagMinVal);
+        }
 
-        slider->setValue(0);
-        
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
         
         QLabel *name = new QLabel(tagName);

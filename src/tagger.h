@@ -45,4 +45,5 @@ signals:
     void updatedValue(QString tag, int value, QString note);
 
 };
+
 #endif // TAGGER_H

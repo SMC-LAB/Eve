@@ -5,6 +5,7 @@
 #include <QTableView>
 #include <QSqlTableModel>
 #include <QtSql>
+
 #include "transport.h"
 #include "tagger.h"
 
@@ -17,15 +18,22 @@ class Experiment : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Experiment(QWidget *parent = 0);
+    static Experiment* getInstance()
+    {
+        static Experiment* instance = new Experiment();
+        return instance;
+    }
     ~Experiment();
     void init(QString fileName);
     QSqlDatabase getDb();
     Transport* getTransport();
     Tagger* getTagger();
     int getCurrentSubjectId();
-    
+    int getValue(QString tag);
+    bool rowExists(QString tag);
+
 private:
+    explicit Experiment(QWidget *parent = 0);
     Ui::Experiment *ui_;
     QSqlDatabase db_;
     Transport *transport_;

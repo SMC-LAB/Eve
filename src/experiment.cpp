@@ -177,7 +177,16 @@ void Experiment::init(QString fileName)
 void Experiment::updateValue(QString tag, int rating, QString note = "")
 {
     QSqlQuery *setTagRating = new QSqlQuery(db_);
-    setTagRating->prepare("UPDATE Experiments SET SubjectID=:SubjectID, StimuliID=:StimuliID, Tag=:Tag, Tag=:Rating, Note=:Note;");
+
+    if (rowExists(tag))
+    {
+        setTagRating->prepare("UPDATE Experiments SET Rating=:Rating, Note=:Note WHERE SubjectID=:SubjectID AND StimuliID=:StimuliID AND Tag=:Tag;");
+    }
+    else
+    {
+        setTagRating->prepare("INSERT INTO Experiments(SubjectID, StimuliID, Tag, Rating, Note) VALUES(:SubjectID, :StimuliID, :Tag, :Rating, :Note);");
+    }
+
     setTagRating->bindValue(":SubjectID", getCurrentSubjectId());
     setTagRating->bindValue(":StimuliID", transport_->getCurrentFileId());
     setTagRating->bindValue(":Tag", tag);
@@ -188,6 +197,46 @@ void Experiment::updateValue(QString tag, int rating, QString note = "")
     {
         qDebug() << setTagRating->lastError();
         exit(-1);
+    }
+}
+
+bool Experiment::rowExists(QString tag)
+{
+    QSqlQuery *getRow = new QSqlQuery(db_);
+    getRow->prepare("SELECT Rating FROM Experiments WHERE SubjectID=:SubjectID AND StimuliID=:StimuliID AND Tag=:Tag;");
+    getRow->bindValue(":SubjectID", getCurrentSubjectId());
+    getRow->bindValue(":StimuliID", transport_->getCurrentFileId());
+    getRow->bindValue(":Tag", tag);
+
+    if (!getRow->exec())
+    {
+        qDebug() << getRow->lastError() << getRow->lastQuery();
+        exit(-1);
+    }
+
+    if (getRow->next())
+    {
+        return true;
+    }
+}
+
+int Experiment::getValue(QString tag)
+{
+    QSqlQuery *getRating = new QSqlQuery(db_);
+    getRating->prepare("SELECT Rating FROM Experiments WHERE SubjectID=:SubjectID AND StimuliID=:StimuliID AND Tag=:Tag;");
+    getRating->bindValue(":SubjectID", getCurrentSubjectId());
+    getRating->bindValue(":StimuliID", transport_->getCurrentFileId());
+    getRating->bindValue(":Tag", tag);
+
+    if (!getRating->exec())
+    {
+        qDebug() << getRating->lastError() << getRating->lastQuery();
+        exit(-1);
+    }
+
+    if (getRating->next())
+    {
+        return getRating->value(0).toInt();
     }
 }
 
@@ -247,3 +296,4 @@ void Experiment::close()
     this->hide();
     emit experimentConfigured();
 }
+

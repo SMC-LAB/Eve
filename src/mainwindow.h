@@ -1,7 +1,5 @@
 #include <QMainWindow>
 #include <QtDebug>
-#include "transport.h"
-#include "tagger.h"
 #include "experiment.h"
 
 namespace Ui {

@@ -78,7 +78,7 @@ void MainWindow::newExperiment()
         QFile::remove(fileName);
         if (!experiment_)
         {
-            experiment_ = new Experiment();
+            experiment_ = Experiment::getInstance();
         }
         experiment_->init(fileName);
         experiment_->show();
@@ -97,7 +97,7 @@ void MainWindow::openExperiment()
     {
         if (!experiment_)
         {
-            experiment_ = new Experiment();
+            experiment_ = Experiment::getInstance();
         }
         
         experiment_->init(fileName);
