@@ -15,8 +15,6 @@ typedef struct
     mrs_real srate;
 } soundFile;
 
-static vector<string> split(const string& s, char c);
-
 class SimplePlayerBackend 
 {
 public:

@@ -1,5 +1,6 @@
-#include "experiment.h"
 #include "ui_experiment.h"
+#include "experiment.h"
+#include "util.h"
 #include <QFileDialog>
 
 Experiment::Experiment(QWidget *parent) :
@@ -19,10 +20,16 @@ Experiment::~Experiment()
 
 void Experiment::createConnections_() 
 {
-    connect(ui_->addTagPushButton,         SIGNAL(clicked()), tagger_, SLOT(addTag()));
-    connect(ui_->removeTagPushButton,      SIGNAL(clicked()), tagger_, SLOT(removeTag()));
-    connect(ui_->donePushButton,           SIGNAL(clicked()), this, SLOT(close()));
-    connect(ui_->donePushButton_2,         SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->addTagPushButton,      SIGNAL(clicked()), tagger_, SLOT(addTag()));
+    connect(ui_->removeTagPushButton,   SIGNAL(clicked()), tagger_, SLOT(removeTag()));
+
+    connect(ui_->addSubjectPushButton,    SIGNAL(clicked()), this, SLOT(addSubject()));
+    connect(ui_->removeSubjectPushButton, SIGNAL(clicked()), this, SLOT(removeSubject()));
+
+    connect(ui_->doneTagPushButton,     SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->doneStimuliPushButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui_->doneSubjectPushButton, SIGNAL(clicked()), this, SLOT(close()));
+
     connect(ui_->openCollectionFileButton, SIGNAL(clicked()), this, SLOT(openCollectionFile()));
 
     connect(tagger_, SIGNAL(updatedValue(QString, int, QString)), this, SLOT(updateValue(QString, int, QString)));
@@ -102,7 +109,8 @@ void Experiment::init(QString fileName)
             "    Paid        BOOLEAN,"
             "    Gender      CHAR,"
             "    Nonmusician BOOLEAN,"
-            "    Country     TEXT "
+            "    Country     TEXT,"
+            "    Active      BOOLEAN"
             ");"
             << "CREATE TABLE Annotations ( "
             "    ID        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
@@ -162,15 +170,15 @@ void Experiment::init(QString fileName)
 
     populateTagsTable_();
     populateStimuliTable_();
+    populateSubjectsTable_();
     createConnections_();    
 }
 
 void Experiment::updateValue(QString tag, int rating, QString note = "")
 {
-    QSqlQuery updateQuery("UPDATE ", db_);
-    
     QSqlQuery *setTagRating = new QSqlQuery(db_);
-    setTagRating->prepare("INSERT INTO Experiments(StimuliID, Tag, Rating, Note) VALUES(:StimuliID, :Tag, :Rating, :Note);");
+    setTagRating->prepare("UPDATE Experiments SET SubjectID=:SubjectID, StimuliID=:StimuliID, Tag=:Tag, Tag=:Rating, Note=:Note;");
+    setTagRating->bindValue(":SubjectID", getCurrentSubjectId());
     setTagRating->bindValue(":StimuliID", transport_->getCurrentFileId());
     setTagRating->bindValue(":Tag", tag);
     setTagRating->bindValue(":Rating", rating);
@@ -195,6 +203,42 @@ void Experiment::populateStimuliTable_()
     ui_->verticalLayout->addWidget(transport_);
 }
 
+void Experiment::populateSubjectsTable_()
+{
+    subjects_model_ = new QSqlRelationalTableModel(this, db_);
+    subjects_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
+    subjects_model_->setTable("Subjects");
+    subjects_model_->select();
+
+    subjects_table_ = new QTableView();
+    subjects_table_->setModel(subjects_model_);
+    subjects_table_->setItemDelegate(new QSqlRelationalDelegate(subjects_table_));
+
+    Util::removeLayoutChildren(ui_->verticalLayout_3, 1);
+    ui_->verticalLayout_3->addWidget(subjects_table_);
+}
+
+int Experiment::getCurrentSubjectId()
+{
+    QSqlQuery *idQuery = new QSqlQuery("SELECT ID FROM Subjects WHERE Active='true'", db_);
+    idQuery->exec();
+    idQuery->next();
+
+    return idQuery->value(0).toInt();
+}
+
+void Experiment::addSubject() 
+{
+    int row = subjects_model_->rowCount();
+    subjects_model_->insertRow(row);
+}
+
+void Experiment::removeSubject()
+{
+    QModelIndex index = subjects_table_->currentIndex();
+    subjects_model_->removeRows(index.row(), 1);
+}
+
 void Experiment::close()
 {
     ui_->verticalLayout->removeWidget(transport_);
@@ -202,4 +246,3 @@ void Experiment::close()
     this->hide();
     emit experimentConfigured();
 }
-

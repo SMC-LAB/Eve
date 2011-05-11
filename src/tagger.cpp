@@ -1,5 +1,6 @@
 #include "ui_tagger.h"
 #include "tagger.h"
+#include "util.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -39,6 +40,7 @@ void Tagger::initTagWidget()
     QSqlQuery getTags("SELECT * FROM Tags;", db_);
 
     ui_->verticalLayout_3->removeWidget(tags_table_);
+    Util::removeLayoutChildren(ui_->verticalLayout_3, 2);
     
     while (getTags.next())
     {
@@ -54,6 +56,10 @@ void Tagger::initTagWidget()
         slider->setTickPosition(QSlider::TicksBelow);
         slider->setTracking(false);
         slider->setPageStep(1);
+
+        
+
+        slider->setValue(0);
         
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
         
@@ -132,15 +138,3 @@ bool Tagger::eventFilter(QObject *obj, QEvent *event)
     }
 }
 
-static void remoteLayoutChildren(QLayout *layout, int fromIndex)
-{
-    QLayoutItem *child;
-    QWidget *childWidget;
-    
-    while ((child = layout->takeAt(fromIndex)) != 0)
-    {
-        childWidget = child->widget();
-        delete childWidget;
-        delete child;
-    }
-}

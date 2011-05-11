@@ -1,4 +1,5 @@
 #include "backend.h"
+#include "util.h"
 
 SimplePlayerBackend::SimplePlayerBackend()
 {
@@ -33,7 +34,7 @@ SimplePlayerBackend::getSoundFileInfo()
     mrs_natural numFiles  = src->getctrl("mrs_natural/numFiles")->to<mrs_natural>();
     mrs_string labelNames = src->getControl("mrs_string/labelNames")->to<mrs_string>();
     
-    vector<string> labels = split(labelNames, ',');
+    vector<string> labels = Util::split(labelNames, ',');
     
     vector<soundFile> soundFileDetails;
 
@@ -52,23 +53,4 @@ SimplePlayerBackend::getSoundFileInfo()
     }
 
     return soundFileDetails;
-}
-
-static vector<string> split(const string& s, char c)
-{
-    string::size_type i = 0;
-    string::size_type j = s.find(c);
-    vector<string> v;
-    
-    while (j != string::npos) {   
-        v.push_back(s.substr(i, j-i));
-        i = ++j;
-        j = s.find(c, j);
-        
-        if (j == string::npos) {
-            v.push_back(s.substr(i, s.length( )));
-        }
-    }
-
-    return v;
 }

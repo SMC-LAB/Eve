@@ -80,8 +80,11 @@
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNew_Experiment"/>
     <addaction name="actionOpen_Experiment"/>
@@ -91,14 +94,17 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionPreferences"/>
     <addaction name="actionTest"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
+    <property name="tearOffEnabled">
+     <bool>true</bool>
+    </property>
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout_Eve"/>
    </widget>
@@ -145,6 +151,9 @@
   </action>
   <action name="actionAbout_Eve">
    <property name="text">
+    <string>About Eve</string>
+   </property>
+   <property name="iconText">
     <string>About Eve</string>
    </property>
    <property name="shortcut">

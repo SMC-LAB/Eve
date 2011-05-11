@@ -23,6 +23,64 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <widget class="QWidget" name="subjectTab">
+       <attribute name="title">
+        <string>Subject</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QPushButton" name="addSubjectPushButton">
+              <property name="text">
+               <string>&amp;Add Subject</string>
+              </property>
+              <property name="shortcut">
+               <string>Ctrl+A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="removeSubjectPushButton">
+              <property name="text">
+               <string>&amp;Remove Subject</string>
+              </property>
+              <property name="shortcut">
+               <string>Ctrl+R</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>118</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="doneSubjectPushButton">
+              <property name="text">
+               <string>&amp;Done</string>
+              </property>
+              <property name="shortcut">
+               <string>Ctrl+D</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="stimuliTab">
        <attribute name="title">
         <string>Stimuli</string>
@@ -53,7 +111,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="donePushButton_2">
+             <widget class="QPushButton" name="doneStimuliPushButton">
               <property name="text">
                <string>&amp;Done</string>
               </property>
@@ -111,7 +169,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="donePushButton">
+             <widget class="QPushButton" name="doneTagPushButton">
               <property name="text">
                <string>&amp;Done</string>
               </property>

@@ -45,7 +45,6 @@ void MainWindow::close()
     {
         transport_->close();
     }
-
 }
 
 void MainWindow::quit()

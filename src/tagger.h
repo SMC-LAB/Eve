@@ -10,8 +10,6 @@ namespace Ui {
     class Tagger;
 }
 
-static void remoteLayoutChildren(QLayout *layout, int fromIndex);
-
 class Tagger : public QWidget
 {
     Q_OBJECT
