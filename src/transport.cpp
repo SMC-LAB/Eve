@@ -271,3 +271,9 @@ int Transport::getCurrentFileId()
 
     return idQuery->value(0).toInt();
 }
+
+QString Transport::getCurrentFile()
+{    
+    mrs_string currentlyPlaying = currentlyPlayingPtr_->to<mrs_string>();
+    return QString::fromStdString(currentlyPlaying);
+}

@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui_->setupUi(this);
     createConnections_();
+    currentFileName_ = "";
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +29,20 @@ void MainWindow::init()
     tagger_ = experiment_->getTagger();
     tagger_->initTagWidget();
     rlayout->addWidget(tagger_);
+
+    map<QString, QString> subject = experiment_->getCurrentSubject();
+    
+    statusBar()->addWidget(new QLabel(QString("Subject: " + subject["Name"])));
+    connect(transport_, SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(updateStatusBar(mrs_string, QTableView*)));
+}
+
+void MainWindow::updateStatusBar(mrs_string fileName, QTableView* ignoreMe)
+{
+    if (fileName != currentFileName_)
+    {
+        statusBar()->showMessage(QString::fromStdString("Playing: " + fileName), 1000);
+        currentFileName_ = fileName;
+    }
 }
 
 void MainWindow::createConnections_()

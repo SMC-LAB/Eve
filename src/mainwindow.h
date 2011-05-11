@@ -23,6 +23,8 @@ private:
     Transport *transport_;
     Tagger *tagger_;
 
+    mrs_string currentFileName_;
+
 private slots:
     void newExperiment();
     void openExperiment();
@@ -31,4 +33,5 @@ private slots:
     void preferences();
     void about();
     void init();
+    void updateStatusBar(mrs_string fileName, QTableView* ignoreMe);
 };

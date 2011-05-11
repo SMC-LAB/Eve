@@ -277,6 +277,26 @@ int Experiment::getCurrentSubjectId()
     return idQuery->value(0).toInt();
 }
 
+map<QString, QString> Experiment::getCurrentSubject()
+{
+    QSqlQuery *subjectQuery = new QSqlQuery("SELECT * FROM Subjects WHERE ID=:ID", db_);
+    subjectQuery->bindValue(":ID", getCurrentSubjectId());
+    subjectQuery->exec();
+    subjectQuery->next();
+
+    QSqlRecord subjectRecord = subjectQuery->record();
+
+    map<QString, QString> subject;
+
+    for (int i = 0; i < subjectRecord.count(); ++i)
+    {        
+        QString column = subjectRecord.fieldName(i);
+        subject[column] = subjectQuery->value(i).toString();
+    }
+    
+    return subject;
+}
+
 void Experiment::addSubject() 
 {
     int row = subjects_model_->rowCount();

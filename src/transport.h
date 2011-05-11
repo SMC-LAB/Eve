@@ -29,6 +29,7 @@ public:
     void close();
     string getCollectionFile();
     int getCurrentFileId();
+    QString getCurrentFile();
     
 private:
     explicit Transport(QWidget *parent = 0);
@@ -51,6 +52,7 @@ private:
     QTimer *timer_;
 
     map<mrs_string, int> collectionFilesMap_;
+    mrs_string currentFile_;
 
     MarControlPtr filenamePtr_;
     MarControlPtr posPtr_;

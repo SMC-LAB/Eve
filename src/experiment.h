@@ -31,6 +31,7 @@ public:
     int getCurrentSubjectId();
     int getValue(QString tag);
     bool rowExists(QString tag);
+    map<QString, QString> getCurrentSubject();
 
 private:
     explicit Experiment(QWidget *parent = 0);
