@@ -22,6 +22,8 @@ void Tagger::initTagTable()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
 
+    Util::removeLayoutChildren(ui_->verticalLayout_3, 2);
+
     tags_model_ = new QSqlRelationalTableModel(this, db_);
     tags_model_->setEditStrategy(QSqlTableModel::OnFieldChange);
     tags_model_->setTable("Tags");
@@ -31,6 +33,8 @@ void Tagger::initTagTable()
     tags_table_->setModel(tags_model_);
     tags_table_->setItemDelegate(new QSqlRelationalDelegate(tags_table_));
 
+    ui_->currentDescription->hide();
+    ui_->currentTag->hide();
     ui_->verticalLayout_3->addWidget(tags_table_);
 }
 
@@ -39,6 +43,8 @@ void Tagger::initTagWidget()
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
     QSqlQuery getTags("SELECT * FROM Tags;", db_);
 
+    ui_->currentDescription->show();
+    ui_->currentTag->show();
     ui_->verticalLayout_3->removeWidget(tags_table_);
     Util::removeLayoutChildren(ui_->verticalLayout_3, 2);
     

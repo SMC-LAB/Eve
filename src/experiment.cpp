@@ -194,6 +194,7 @@ void Experiment::updateValue(QString tag, int rating, QString note = "")
 void Experiment::populateTagsTable_() 
 {
     tagger_ = Tagger::getInstance();
+    tagger_->initTagTable();
     ui_->verticalLayout_2->addWidget(tagger_);
 }
 

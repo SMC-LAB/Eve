@@ -10,8 +10,8 @@ namespace Util {
         QWidget *childWidget;
 
         while ((child = layout->takeAt(fromIndex)) != 0)
-        {            
-            childWidget = child->widget();            
+        {
+            childWidget = child->widget();
             delete childWidget;
             delete child;
         }
