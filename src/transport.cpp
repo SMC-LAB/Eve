@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QtSql>
+#include <QHeaderView>
 
 #define START_POS 0
 #define START_GAIN 50
@@ -222,8 +223,18 @@ void Transport::initPlayTable_(QString fileName)
     stimuli_model_->setRelation(6, QSqlRelation("Descriptors", "ID", "ID"));
 
     stimuli_table_ = ui_->playTable;
+
+    QHeaderView *headerView = stimuli_table_->horizontalHeader(); 
+    headerView->setResizeMode(QHeaderView::Stretch);
+    headerView->setResizeMode(1, QHeaderView::Interactive);
+    stimuli_table_->setHorizontalHeader(headerView);
+    
     stimuli_table_->setModel(stimuli_model_);
     stimuli_table_->setItemDelegate(new QSqlRelationalDelegate(stimuli_table_));
+    stimuli_table_->hideColumn(0);
+    stimuli_table_->hideColumn(2);
+    stimuli_table_->hideColumn(5);
+    stimuli_table_->hideColumn(6);
 }
 
 void Transport::populateDb_(QSqlDatabase db_, bool load)

@@ -264,6 +264,12 @@ void Experiment::populateSubjectsTable_()
     subjects_table_->setModel(subjects_model_);
     subjects_table_->setItemDelegate(new QSqlRelationalDelegate(subjects_table_));
 
+    QHeaderView *headerView = subjects_table_->horizontalHeader(); 
+    headerView->setResizeMode(QHeaderView::Stretch);
+    headerView->setResizeMode(1, QHeaderView::Interactive);
+    subjects_table_->setHorizontalHeader(headerView);
+    subjects_table_->hideColumn(0);
+
     Util::removeLayoutChildren(ui_->verticalLayout_3, 1);
     ui_->verticalLayout_3->addWidget(subjects_table_);
 }

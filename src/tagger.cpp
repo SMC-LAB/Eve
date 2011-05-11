@@ -37,6 +37,12 @@ void Tagger::initTagTable()
     tags_table_->setModel(tags_model_);
     tags_table_->setItemDelegate(new QSqlRelationalDelegate(tags_table_));
 
+    QHeaderView *headerView = tags_table_->horizontalHeader(); 
+    headerView->setResizeMode(QHeaderView::Stretch);
+    headerView->setResizeMode(1, QHeaderView::Interactive);
+    tags_table_->setHorizontalHeader(headerView);
+    tags_table_->hideColumn(0);
+
     ui_->currentDescription->hide();
     ui_->currentTag->hide();
     ui_->verticalLayout_3->addWidget(tags_table_);
