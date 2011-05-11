@@ -41,6 +41,29 @@ void Tagger::initTagTable()
     ui_->verticalLayout_3->addWidget(tags_table_);
 }
 
+void Tagger::updateSliders(mrs_string, QTableView* ignoreMe)
+{
+    QSqlDatabase db_ = QSqlDatabase::database("Main");    
+    QSqlQuery getTags("SELECT * FROM Tags;", db_);
+
+    while (getTags.next())
+    {
+        QString tagName = getTags.value(1).toString();
+        int tagMinVal = getTags.value(2).toInt();
+        QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tagName);
+            
+        if (int rating = Experiment::getInstance()->getValue(tagName))
+        {                        
+            slider->setValue(rating);
+        }
+        else
+        {
+            slider->setValue(tagMinVal);
+        }
+    }       
+}
+
+
 void Tagger::initTagWidget()
 {
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
@@ -65,6 +88,7 @@ void Tagger::initTagWidget()
         slider->setTickPosition(QSlider::TicksBelow);
         slider->setTracking(false);
         slider->setPageStep(1);
+        slider->setObjectName(tagName);
         
         if (int rating = Experiment::getInstance()->getValue(tagName))
         {                        
@@ -106,6 +130,7 @@ void Tagger::initTagWidget()
     ui_->verticalLayout_3->addStretch();
 
     connect(this, SIGNAL(hoverOverTag(QString, QString)), this, SLOT(setTagInfo(QString, QString)));
+    connect(Transport::getInstance(), SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(updateSliders(mrs_string, QTableView*)));
 }
 
 void Tagger::updateValue(int value)

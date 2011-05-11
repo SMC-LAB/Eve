@@ -39,7 +39,7 @@ private:
     void init_();
     void createConnections_();
     void initPlayTable_(QString fileName);
-    void populateDb_(QSqlDatabase db_);
+    void populateDb_(QSqlDatabase db_, bool load = false);
     
     Ui::Transport *ui_;
 

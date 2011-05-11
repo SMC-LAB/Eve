@@ -6,6 +6,8 @@
 #include <QSqlRelationalTableModel>
 #include <QTableView>
 
+typedef std::string mrs_string;
+
 namespace Ui {
     class Tagger;
 }
@@ -38,6 +40,7 @@ private slots:
     void removeTag();
     void setTagInfo(QString name, QString description);
     void updateValue(int val);
+    void updateSliders(mrs_string, QTableView* ignoreMe);
 
 signals:
     void hoverOverTag(QString name, QString description);

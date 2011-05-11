@@ -198,7 +198,7 @@ void Transport::initPlayTable_(QString fileName)
     getCollectionFile.next();
 
     if (getCollectionFile.value(0).toString().isEmpty()) {
-        populateDb_(db_);
+        populateDb_(db_, true);
 
         QSqlQuery *setCollectionFile = new QSqlQuery(db_);
         setCollectionFile->prepare("UPDATE Metadata SET CollectionFile=:CollectionFile;");
@@ -208,6 +208,10 @@ void Transport::initPlayTable_(QString fileName)
             qDebug() << setCollectionFile->lastError();
             exit(-1);
         }
+    }
+    else
+    {
+        populateDb_(db_, false);    
     }
     
     stimuli_model_ = new QSqlRelationalTableModel(this, db_);
@@ -222,7 +226,7 @@ void Transport::initPlayTable_(QString fileName)
     stimuli_table_->setItemDelegate(new QSqlRelationalDelegate(stimuli_table_));
 }
 
-void Transport::populateDb_(QSqlDatabase db_)
+void Transport::populateDb_(QSqlDatabase db_, bool load)
 {
     vector<soundFile> collectionFileDetails = backend_->getSoundFileInfo();
 
@@ -232,31 +236,39 @@ void Transport::populateDb_(QSqlDatabase db_)
 
     for (vector<soundFile>::iterator iter = collectionFileDetails.begin(); iter != collectionFileDetails.end(); ++iter)
     {
-        int row = iter - collectionFileDetails.begin() + 1 + row_offset;
-
-        collectionFilesMap_[(*iter).file] = row;
-
-        QFileInfo fi(QString::fromStdString((*iter).file));
+        int row = 0;
         
-        QSqlQuery *stimuliQuery = new QSqlQuery(db_);
-        stimuliQuery->prepare("INSERT INTO Stimuli(ID, Name, Path, Duration, Tagged) VALUES(:ID, :Name, :Path, :Duration, :Tagged);");
-        stimuliQuery->bindValue(":ID", row);
-        stimuliQuery->bindValue(":Name", fi.fileName());
-        stimuliQuery->bindValue(":Path", QString::fromStdString((*iter).file));
-        stimuliQuery->bindValue(":Duration", QString::number((*iter).size / (*iter).srate));
-        stimuliQuery->bindValue(":Tagged", false);
+        if (load)
+        {
+            row = iter - collectionFileDetails.begin() + 1 + row_offset;
 
-        if (!stimuliQuery->exec()){
-            qDebug() << stimuliQuery->lastError();
-            exit(-1);
-        }        
+            QFileInfo fi(QString::fromStdString((*iter).file));
+        
+            QSqlQuery *stimuliQuery = new QSqlQuery(db_);
+            stimuliQuery->prepare("INSERT INTO Stimuli(ID, Name, Path, Duration, Tagged) VALUES(:ID, :Name, :Path, :Duration, :Tagged);");
+            stimuliQuery->bindValue(":ID", row);
+            stimuliQuery->bindValue(":Name", fi.fileName());
+            stimuliQuery->bindValue(":Path", QString::fromStdString((*iter).file));
+            stimuliQuery->bindValue(":Duration", QString::number((*iter).size / (*iter).srate));
+            stimuliQuery->bindValue(":Tagged", false);
+
+            if (!stimuliQuery->exec()){
+                qDebug() << stimuliQuery->lastError();
+                exit(-1);
+            }        
+        }
+        else 
+        {
+            row = iter - collectionFileDetails.begin();
+        }
+        collectionFilesMap_[(*iter).file] = row;
     }
 }
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
 {
-     int row = collectionFilesMap_[file];
-     table->selectRow(row);
+    int row = collectionFilesMap_[file];
+    table->selectRow(row);
 }
 
 int Transport::getCurrentFileId()
