@@ -31,6 +31,7 @@ if (EVE_STATIC)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.lib;.so;.dll;.dylib")
   add_library(marsyas STATIC IMPORTED)
   add_library(marsyasqt STATIC IMPORTED)
+  add_library(qsqlite STATIC IMPORTED)
   message(STATUS "Compilation will statically link to Marsyas")
 else (EVE_STATIC)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.dll;.dylib;.a;.lib")
@@ -38,15 +39,24 @@ endif(EVE_STATIC)
 
 set(MARSYAS_LIBRARY MARSYAS_LIBRARY-NOTFOUND)
 set(MARSYASQT_LIBRARY MARSYASQT_LIBRARY-NOTFOUND)
+set(QSQLITE_LIBRARY QSQLITE_LIBRARY-NOTFOUND)
 
 find_path(MARSYAS_INCLUDE_DIR MarSystem.h PATH_SUFFIXES marsyas)
 find_path(MARSYASQT_INCLUDE_DIR MarSystemQtWrapper.h PATH_SUFFIXES marsyasqt)
 find_library(MARSYAS_LIBRARY marsyas)
 find_library(MARSYASQT_LIBRARY marsyasqt)
 
+if (EVE_STATIC)
+  find_library(QSQLITE_LIBRARY qsqlite HINTS "${QT_PLUGINS_DIR}" PATH_SUFFIXES "sqldrivers")
+ENDIF (EVE_STATIC)
+
 if (MARSYAS_INCLUDE_DIR AND MARSYAS_LIBRARY AND MARSYASQT_LIBRARY)
 	set(MARSYAS_FOUND TRUE)
 endif (MARSYAS_INCLUDE_DIR AND MARSYAS_LIBRARY AND MARSYASQT_LIBRARY)
+
+if (QSQLITE_LIBRARY)
+  set(QSQLITE_FOUND TRUE)
+endif (QSQLITE_LIBRARY)
 
 if (MARSYAS_FOUND)
 	if (NOT MARSYAS_FIND_QUIETLY)
@@ -58,6 +68,10 @@ else (MARSYAS_FOUND)
 		message (FATAL_ERROR "Not found: MARSYAS")
 	endif (MARSYAS_FIND_REQUIRED)
 endif (MARSYAS_FOUND)
+
+if (QSQLITE_FOUND)
+    message (STATUS "Found QSQLITE: ${QSQLITE_LIBRARY}")
+endif (QSQLITE_FOUND)
  
 include_directories(${MARSYAS_INCLUDE_DIR} ${MARSYASQT_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
 
@@ -106,11 +120,12 @@ qt4_wrap_ui(APP_FORMS_HEADERS ${APP_FORMS})
 if (EVE_STATIC)
   set_target_properties(marsyas PROPERTIES IMPORTED_LOCATION ${MARSYAS_LIBRARY})
   set_target_properties(marsyasqt PROPERTIES IMPORTED_LOCATION ${MARSYASQT_LIBRARY})
+  set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
 add_executable (${APP_NAME} ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
-target_link_libraries (${APP_NAME} marsyas marsyasqt ${QT_LIBRARIES} ${EXTRA_LIBS})
+target_link_libraries (${APP_NAME} marsyas marsyasqt qsqlite ${QT_LIBRARIES} ${EXTRA_LIBS})
 
 install (TARGETS Eve DESTINATION bin)
 install (FILES ${APP_HEADERS} "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/Eve)
