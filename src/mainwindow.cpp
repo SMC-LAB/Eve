@@ -1,5 +1,6 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QLabel>
@@ -11,12 +12,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_->setupUi(this);
     createConnections_();
     currentFileName_ = "";
+    experiment_ = NULL;
+    transport_ = NULL;
+    tagger_ = NULL;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui_;
-    delete transport_;
+    delete experiment_;
 }
 
 void MainWindow::init() 
@@ -32,7 +36,8 @@ void MainWindow::init()
 
     map<QString, QString> subject = experiment_->getCurrentSubject();
     
-    statusBar()->addWidget(new QLabel(QString("Subject: " + subject["Name"])));
+    statusLabel_ = new QLabel(QString("Subject: " + subject["Name"]));
+    statusBar()->addWidget(statusLabel_);
     connect(transport_, SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(updateStatusBar(mrs_string, QTableView*)));
 }
 
@@ -51,23 +56,13 @@ void MainWindow::createConnections_()
     connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this, SLOT(about()));
     connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this, SLOT(newExperiment()));    
     connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this, SLOT(openExperiment()));
-    connect(ui_->actionClose,           SIGNAL(triggered()), this, SLOT(close()));
     connect(ui_->actionQuit,            SIGNAL(triggered()), this, SLOT(quit()));
-}
-
-void MainWindow::close()
-{
-    if (transport_)
-    {
-        transport_->close();
-    }
 }
 
 void MainWindow::quit()
 {
-    close();
     exit(0);
-}           
+}
 
 void MainWindow::preferences()
 {
@@ -76,11 +71,10 @@ void MainWindow::preferences()
 
 void MainWindow::about()
 {
-    qDebug() << "About: ...";
-    QMessageBox::about ( this, tr("About Eve"),
-                         tr("Automated listening tests setup, evaluation and reporting\n"
-                            "Copyright 2011 Pedro Silva <pasilva@inescporto.pt>\n"
-                            "Licensed under the GNU General Public License version 3."));
+    QMessageBox::about( this, tr("About Eve"),
+                        tr("Automated listening tests setup, evaluation and reporting\n"
+                           "Copyright 2011 Pedro Silva <pasilva@inescporto.pt>\n"
+                           "Licensed under the GNU General Public License version 3."));
 }
 
 void MainWindow::newExperiment()
@@ -92,10 +86,7 @@ void MainWindow::newExperiment()
     if (!fileName.isEmpty())
     {
         QFile::remove(fileName);
-        if (!experiment_)
-        {
-            experiment_ = Experiment::getInstance();
-        }
+        experiment_ = Experiment::getInstance();
         experiment_->init(fileName);
         experiment_->show();
         connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
@@ -111,11 +102,7 @@ void MainWindow::openExperiment()
 
     if (!fileName.isEmpty())
     {
-        if (!experiment_)
-        {
-            experiment_ = Experiment::getInstance();
-        }
-        
+        experiment_ = Experiment::getInstance();
         experiment_->init(fileName);
         experiment_->openCollectionFile();
         experiment_->show();

@@ -8,14 +8,15 @@ Experiment::Experiment(QWidget *parent) :
     ui_(new Ui::Experiment)
 {
     ui_->setupUi(this);
+    db_ = QSqlDatabase();
 }
 
 Experiment::~Experiment()
 {
-    db_.close();
-    delete &db_;
-    delete ui_;
     delete transport_;
+    delete tagger_;
+    delete ui_;
+    db_.close();
 }
 
 void Experiment::createConnections_() 
@@ -174,7 +175,22 @@ void Experiment::init(QString fileName)
     createConnections_();    
 }
 
-void Experiment::updateValue(QString tag, int rating, QString note = "")
+void Experiment::updateNote(QString note)
+{
+    QSqlQuery *setTagNote = new QSqlQuery(db_);
+
+    setTagNote->prepare("UPDATE Experiments SET Note=:Note WHERE SubjectID=:SubjectID AND StimuliID=:StimuliID;");
+    setTagNote->bindValue(":SubjectID", getCurrentSubjectId());
+    setTagNote->bindValue(":StimuliID", transport_->getCurrentFileId());
+
+    if (!setTagNote->exec())
+    {
+        qDebug() << setTagNote->lastError();
+        exit(-1);
+    }
+}
+
+void Experiment::updateValue(QString tag, int rating, QString note)
 {
     QSqlQuery *setTagRating = new QSqlQuery(db_);
 

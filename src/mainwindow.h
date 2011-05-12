@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include <QtDebug>
+#include <QLabel>
 #include "experiment.h"
 
 namespace Ui {
@@ -24,14 +25,14 @@ private:
     Tagger *tagger_;
 
     mrs_string currentFileName_;
-
+    QLabel *statusLabel_;
+                        
 private slots:
     void newExperiment();
     void openExperiment();
-    void close();
-    void quit();
     void preferences();
     void about();
+    void quit();
     void init();
     void updateStatusBar(mrs_string fileName, QTableView* ignoreMe);
 };

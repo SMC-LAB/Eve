@@ -102,6 +102,7 @@ void Tagger::initTagWidget()
 
     ui_->currentDescription->show();
     ui_->currentTag->show();
+
     ui_->verticalLayout_3->removeWidget(tags_table_);
     Util::removeLayoutChildren(ui_->verticalLayout_3, 2);
     

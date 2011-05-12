@@ -109,6 +109,8 @@ void Transport::open(QString fileName)
 
 void Transport::close()
 {
+    mwr_->pause();
+    setPos(START_POS);
     mwr_->exit();
     timer_->stop();
 }

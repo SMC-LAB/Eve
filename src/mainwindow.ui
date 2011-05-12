@@ -89,7 +89,6 @@
     <addaction name="actionNew_Experiment"/>
     <addaction name="actionOpen_Experiment"/>
     <addaction name="separator"/>
-    <addaction name="actionClose"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -101,7 +100,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="tearOffEnabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="title">
      <string>&amp;Help</string>
@@ -127,14 +126,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="text">
-    <string>Close</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionPreferences">

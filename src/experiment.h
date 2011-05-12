@@ -50,7 +50,8 @@ private:
 public slots:
     void openCollectionFile();
     void close();
-    void updateValue(QString tag, int rating, QString note);
+    void updateValue(QString tag, int value, QString note = "");
+    void updateNote(QString note);
     void addSubject();
     void removeSubject();
 

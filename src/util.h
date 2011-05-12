@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace Util {
-    void removeLayoutChildren(QLayout* layout, int fromIndex);
+    void removeLayoutChildren(QLayout* layout, int fromIndex = 0);
     vector<string> split(const string& s, char c);
 }
 
