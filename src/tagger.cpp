@@ -176,7 +176,7 @@ void Tagger::updateValue(int value)
 
 void Tagger::setTagInfo(QString name, QString description)
 {
-    ui_->currentTag->setText(name);
+    ui_->currentTag->setText(name.trimmed());
     ui_->currentDescription->setText(description);
 }
 
