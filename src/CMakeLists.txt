@@ -13,7 +13,6 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 
 IF (APPLE)
   find_library(COREAUDIO_LIBRARY CoreAudio)
-  find_library(COREFOUNDATION_LIBRARY)
   set(EXTRA_LIBS ${COREAUDIO_LIBRARY})
 ELSEIF (UNIX)
   find_library(ASOUND_LIBRARY asound)
@@ -123,7 +122,7 @@ if (EVE_STATIC)
   set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
-add_executable (${APP_NAME} ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
+add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
 target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt qsqlite)
 
