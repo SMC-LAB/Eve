@@ -208,7 +208,7 @@ void Transport::initPlayTable_(QString fileName)
         setCollectionFile->bindValue(":CollectionFile", fileName);
 
         if (!setCollectionFile->exec()){
-            qDebug() << setCollectionFile->lastError();
+            qDebug() << setCollectionFile->lastError() << __func__;
             exit(-1);
         }
     }
@@ -266,7 +266,7 @@ void Transport::populateDb_(QSqlDatabase db_, bool load)
             stimuliQuery->bindValue(":Tagged", false);
 
             if (!stimuliQuery->exec()){
-                qDebug() << stimuliQuery->lastError();
+                qDebug() << stimuliQuery->lastError() << stimuliQuery->lastQuery() << __func__;
                 exit(-1);
             }        
         }

@@ -86,7 +86,7 @@ Tagger* Experiment::getTagger()
     return tagger_;
 }
 
-void Experiment::init(QString fileName)
+void Experiment::init(QString fileName, bool overwrite)
 {
     if (!db_.isValid())
     {
@@ -95,11 +95,11 @@ void Experiment::init(QString fileName)
     }
 
     if(!db_.open()) {
-        qDebug() << db_.lastError();
+        qDebug() << db_.lastError() << __func__;
         exit(-1);
     }
-    
-    if (!QFile(fileName).exists() || !QFile(fileName).size()) {
+
+    if (overwrite || !QFile(fileName).exists() || !QFile(fileName).size()) {
 
         QStringList ddl;
 
@@ -163,7 +163,7 @@ void Experiment::init(QString fileName)
         {
             if(!query.exec(*iter))
             {    
-                qDebug() << query.lastError();
+                qDebug() << query.lastError() << __func__;
                 exit(-1);
             }
         }
@@ -185,7 +185,7 @@ void Experiment::updateNote(QString note)
 
     if (!setTagNote->exec())
     {
-        qDebug() << setTagNote->lastError();
+        qDebug() << setTagNote->lastError() << __func__;
         exit(-1);
     }
 }
@@ -211,7 +211,7 @@ void Experiment::updateValue(QString tag, int rating, QString note)
 
     if (!setTagRating->exec())
     {
-        qDebug() << setTagRating->lastError();
+        qDebug() << setTagRating->lastError() << __func__;
         exit(-1);
     }
 }
@@ -226,7 +226,7 @@ bool Experiment::rowExists(QString tag)
 
     if (!getRow->exec())
     {
-        qDebug() << getRow->lastError() << getRow->lastQuery();
+        qDebug() << getRow->lastError() << __func__ << getRow->lastQuery();
         exit(-1);
     }
 
@@ -246,7 +246,7 @@ int Experiment::getValue(QString tag)
 
     if (!getRating->exec())
     {
-        qDebug() << getRating->lastError() << getRating->lastQuery();
+        qDebug() << getRating->lastError() << getRating->lastQuery() << __func__;
         exit(-1);
     }
 

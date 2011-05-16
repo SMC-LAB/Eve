@@ -13,8 +13,8 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 
 IF (APPLE)
   find_library(COREAUDIO_LIBRARY CoreAudio)
-  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-  set(EXTRA_LIBS "${COREAUDIO_LIBRARY} ${COREFOUNDATION_LIBRARY}")
+  find_library(COREFOUNDATION_LIBRARY)
+  set(EXTRA_LIBS ${COREAUDIO_LIBRARY})
 ELSEIF (UNIX)
   find_library(ASOUND_LIBRARY asound)
   set(EXTRA_LIBS ${ASOUND_LIBRARY})
@@ -125,12 +125,15 @@ endif (EVE_STATIC)
 
 add_executable (${APP_NAME} ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
-target_link_libraries (${APP_NAME} marsyas marsyasqt qsqlite ${QT_LIBRARIES} ${EXTRA_LIBS})
+target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt qsqlite)
 
 install (TARGETS Eve DESTINATION bin)
 install (FILES ${APP_HEADERS} "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/Eve)
 
 set (CPACK_PACKAGE_NAME "${APP_NAME}")
+set (CPACK_BUNDLE_NAME "${APP_NAME}")
+set (CPACK_BUNDLE_PLIST Info.plist)
+set (CPACK_BUNDLE_ICON TagTool.png)
 set (CPACK_PACKAGE_CONTACT "Pedro Silva <pasilva@inescporto.pt>")
 set (CPACK_PACKAGE_VENDOR "INESC Porto")
 set (CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})

@@ -24,7 +24,7 @@ public:
         return instance;
     }
     ~Experiment();
-    void init(QString fileName);
+    void init(QString fileName, bool overwrite);
     QSqlDatabase getDb();
     Transport* getTransport();
     Tagger* getTagger();
