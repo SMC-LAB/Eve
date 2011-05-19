@@ -6,15 +6,11 @@ set (EVE_VERSION_PATCH 4)
 
 project (${APP_NAME})
 
-FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtSql)
-SET(QT_USE_QTSQL TRUE)
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-
 IF (APPLE)
   find_library(COREAUDIO_LIBRARY CoreAudio)
-  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-  set(EXTRA_LIBS "${COREAUDIO_LIBRARY} ${COREFOUNDATION_LIBRARY}")
+  find_library(COCOA_LIBRARY Cocoa)
+  set(EXTRA_LIBS ${COREAUDIO_LIBRARY} ${COCOA_LIBRARY})
+  set(CMAKE_FIND_FRAMEWORK "LAST")
 ELSEIF (UNIX)
   find_library(ASOUND_LIBRARY asound)
   set(EXTRA_LIBS ${ASOUND_LIBRARY})
@@ -24,6 +20,11 @@ ELSEIF (WIN32)
 ELSE (APPLE)
   message(FATAL_ERROR "Unknown architecture")
 ENDIF (APPLE)
+
+FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtSql)
+SET(QT_USE_QTSQL TRUE)
+INCLUDE(${QT_USE_FILE})
+ADD_DEFINITIONS(${QT_DEFINITIONS})
 
 option (EVE_STATIC "Compilation will statically link to Marsyas" ON)
 
@@ -126,14 +127,17 @@ if (EVE_STATIC)
   set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
-add_executable (${APP_NAME} ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
+add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
-target_link_libraries (${APP_NAME} marsyas marsyasqt qsqlite ${QT_LIBRARIES} ${EXTRA_LIBS})
+target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt qsqlite)
 
 install (TARGETS Eve DESTINATION bin)
 install (FILES ${APP_HEADERS} "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/Eve)
 
 set (CPACK_PACKAGE_NAME "${APP_NAME}")
+set (CPACK_BUNDLE_NAME "${APP_NAME}")
+set (CPACK_BUNDLE_PLIST Info.plist)
+set (CPACK_BUNDLE_ICON TagTool.png)
 set (CPACK_PACKAGE_CONTACT "Pedro Silva <pasilva@inescporto.pt>")
 set (CPACK_PACKAGE_VENDOR "INESC Porto")
 set (CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})

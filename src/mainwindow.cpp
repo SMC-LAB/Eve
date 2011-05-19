@@ -87,7 +87,7 @@ void MainWindow::newExperiment()
     {
         QFile::remove(fileName);
         experiment_ = Experiment::getInstance();
-        experiment_->init(fileName);
+        experiment_->init(fileName, true);
         experiment_->show();
         connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
     }
@@ -103,7 +103,7 @@ void MainWindow::openExperiment()
     if (!fileName.isEmpty())
     {
         experiment_ = Experiment::getInstance();
-        experiment_->init(fileName);
+        experiment_->init(fileName, false);
         experiment_->openCollectionFile();
         experiment_->show();
         connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
