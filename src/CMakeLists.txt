@@ -96,6 +96,7 @@ set(APP_SOURCES
   tagger.cpp
   experiment.cpp
   util.cpp
+  wizard.cpp
   )
 
 set(APP_HEADERS
@@ -105,6 +106,7 @@ set(APP_HEADERS
   tagger.h
   experiment.h
   util.h
+  wizard.h
   )
 
 set(APP_FORMS
@@ -112,6 +114,7 @@ set(APP_FORMS
   transport.ui
   tagger.ui
   experiment.ui
+  wizard.ui
   )
 
 qt4_wrap_cpp(APP_HEADERS_MOC ${APP_HEADERS})

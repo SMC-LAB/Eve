@@ -12,3 +12,4 @@ Eve
 config.h
 build
 qtcreator-build
+resources/*png

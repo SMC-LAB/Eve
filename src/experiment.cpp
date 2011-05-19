@@ -325,6 +325,13 @@ void Experiment::addSubject()
     subjects_model_->insertRow(row);
 }
 
+void Experiment::addSubject(QString name, int age, bool paid, QString gender, bool nonmusician, QString country, bool active)
+{
+    QSqlQuery *insertSubject = new QSqlQuery(db_);
+    insertSubject->prepare("INSERT INTO Subjects(Name, Age, Paid, Gender, Nonmusician, Country, Active) VALUES(:Name, :Age, :Paid, :Gender, :Nonmusician, :Country, :Active)");
+    
+}
+
 void Experiment::removeSubject()
 {
     QModelIndex index = subjects_table_->currentIndex();

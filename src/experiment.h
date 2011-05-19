@@ -32,6 +32,7 @@ public:
     int getValue(QString tag);
     bool rowExists(QString tag);
     map<QString, QString> getCurrentSubject();
+    void addSubject(QString name, int age, bool paid, QString gender, bool nonmusician, QString country, bool active);
 
 private:
     explicit Experiment(QWidget *parent = 0);
