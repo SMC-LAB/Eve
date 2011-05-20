@@ -5,8 +5,6 @@
 #include "backend.h"
 #include "MarSystemQtWrapper.h"
 
-Q_IMPORT_PLUGIN(qsqlite)
-
 int main(int argc, char *argv[])
 {    
     QApplication a(argc, argv);
