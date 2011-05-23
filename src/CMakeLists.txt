@@ -6,11 +6,20 @@ set (EVE_VERSION_PATCH 7)
 
 project (${APP_NAME})
 
+GET_FILENAME_COMPONENT(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}" PATH)
+
+set(PROJECT_RESOURCE_DIR "${PROJECT_ROOT_DIR}/resources")
+
 IF (APPLE)
   find_library(COREAUDIO_LIBRARY CoreAudio)
   find_library(COCOA_LIBRARY Cocoa)
   set(EXTRA_LIBS ${COREAUDIO_LIBRARY} ${COCOA_LIBRARY})
   set(CMAKE_FIND_FRAMEWORK "LAST")
+  set(MACOSX_BUNDLE_ICON_FILE Eve.icns) 
+  set_SOURCE_FILES_PROPERTIES("${PROJECT_RESOURCE_DIR}/Eve.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+  set(PROJECT_RESOURCES "${PROJECT_RESOURCE_DIR}/Eve.icns")
+  
 ELSEIF (UNIX)
   find_library(ASOUND_LIBRARY asound)
   set(EXTRA_LIBS ${ASOUND_LIBRARY})
@@ -131,11 +140,9 @@ if (EVE_STATIC)
   set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
-add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
+add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${PROJECT_RESOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
 target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt)
-
-
 
 #--------------------------------------------------------------------------------
 # Now the installation stuff below
@@ -197,9 +204,9 @@ INSTALL(CODE "
 # where CPackConfig.cmake is created by including CPack
 # And then there's ways to customize this as well
 set(CPACK_BINARY_DRAGNDROP ON)
-set(CPACK_PACKAGE_DESCRIPTION_FILE ../README)
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_ROOT_DIR}/README")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Automated listening tests setup, evaluation and reporting")
-set(CPACK_PACKAGE_ICON icon.svg)
+set(CPACK_PACKAGE_ICON ${PROJECT_RESOURCES})
 set(CPACK_PACKAGE_NAME "Eve")
 set(CPACK_PACKAGE_VENDOR "Pedro Silva")
 set(CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})
