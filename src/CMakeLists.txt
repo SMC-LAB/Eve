@@ -2,15 +2,24 @@ set (APP_NAME Eve)
 
 set (EVE_VERSION_MAJOR 0)
 set (EVE_VERSION_MINOR 0)
-set (EVE_VERSION_PATCH 4)
+set (EVE_VERSION_PATCH 7)
 
 project (${APP_NAME})
+
+GET_FILENAME_COMPONENT(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}" PATH)
+
+set(PROJECT_RESOURCE_DIR "${PROJECT_ROOT_DIR}/resources")
 
 IF (APPLE)
   find_library(COREAUDIO_LIBRARY CoreAudio)
   find_library(COCOA_LIBRARY Cocoa)
   set(EXTRA_LIBS ${COREAUDIO_LIBRARY} ${COCOA_LIBRARY})
   set(CMAKE_FIND_FRAMEWORK "LAST")
+  set(MACOSX_BUNDLE_ICON_FILE Eve.icns) 
+  set_SOURCE_FILES_PROPERTIES("${PROJECT_RESOURCE_DIR}/Eve.icns" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+  set(PROJECT_RESOURCES "${PROJECT_RESOURCE_DIR}/Eve.icns")
+  
 ELSEIF (UNIX)
   find_library(ASOUND_LIBRARY asound)
   set(EXTRA_LIBS ${ASOUND_LIBRARY})
@@ -98,19 +107,21 @@ set(APP_SOURCES
   experiment.cpp
   util.cpp
   wizard.cpp
-  userinterface.cpp
   )
 
-set(APP_HEADERS
+set(MOC_HEADERS
   mainwindow.h
-  backend.h
   transport.h
   tagger.h
   experiment.h
-  util.h
   wizard.h
-  userinterface.h
   )
+
+set(APP_HEADERS
+  ${MOC_HEADERS}
+  backend.h
+  util.h
+)
 
 set(APP_FORMS
   mainwindow.ui
@@ -118,15 +129,10 @@ set(APP_FORMS
   tagger.ui
   experiment.ui
   wizard.ui
-  userinterface.ui
   )
 
-set(APP_RESOURCES ../icons.qrc)
-
-qt4_wrap_cpp(APP_HEADERS_MOC ${APP_HEADERS})
+qt4_wrap_cpp(APP_HEADERS_MOC ${MOC_HEADERS})
 qt4_wrap_ui(APP_FORMS_HEADERS ${APP_FORMS})
-
-QT4_ADD_RESOURCES(APP_RESOURCES_HEADERS ${APP_RESOURCES})
 
 if (EVE_STATIC)
   set_target_properties(marsyas PROPERTIES IMPORTED_LOCATION ${MARSYAS_LIBRARY})
@@ -134,23 +140,93 @@ if (EVE_STATIC)
   set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
-add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS} ${APP_RESOURCES_HEADERS})
+add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${PROJECT_RESOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
 
-target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt qsqlite)
+target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt)
 
-install (TARGETS Eve DESTINATION bin)
-install (FILES ${APP_HEADERS} "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/Eve)
+#--------------------------------------------------------------------------------
+# Now the installation stuff below
+#--------------------------------------------------------------------------------
+SET(plugin_dest_dir bin)
+SET(qtconf_dest_dir bin)
+SET(APPS "\${CMAKE_INSTALL_PREFIX}/bin/Eve")
+IF(APPLE)
+  SET(plugin_dest_dir Eve.app/Contents/MacOS)
+  SET(qtconf_dest_dir Eve.app/Contents/Resources)
+  SET(APPS "\${CMAKE_INSTALL_PREFIX}/Eve.app")
+ENDIF(APPLE)
+IF(WIN32)
+  SET(APPS "\${CMAKE_INSTALL_PREFIX}/bin/Eve.exe")
+ENDIF(WIN32)
 
-set (CPACK_PACKAGE_NAME "${APP_NAME}")
-set (CPACK_BUNDLE_NAME "${APP_NAME}")
-set (CPACK_BUNDLE_PLIST Info.plist)
-set (CPACK_BUNDLE_ICON TagTool.png)
-set (CPACK_PACKAGE_CONTACT "Pedro Silva <pasilva@inescporto.pt>")
-set (CPACK_PACKAGE_VENDOR "INESC Porto")
-set (CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})
-set (CPACK_PACKAGE_VERSION_MINOR ${EVE_VERSION_MINOR})
-set (CPACK_PACKAGE_VERSION_PATCH ${EVE_VERSION_PATCH})
-set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Automated listening tests setup, evaluation and reporting")
-set (CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/../COPYING")
-set (CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/../README")
+#--------------------------------------------------------------------------------
+# Install the QtTest application, on Apple, the bundle is at the root of the
+# install tree, and on other platforms it'll go into the bin directory.
+INSTALL(TARGETS Eve
+    BUNDLE DESTINATION . COMPONENT Runtime
+    RUNTIME DESTINATION bin COMPONENT Runtime
+    )
+
+#--------------------------------------------------------------------------------
+# Install needed Qt plugins by copying directories from the qt installation
+# One can cull what gets copied by using 'REGEX "..." EXCLUDE'
+INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/sqldrivers" DESTINATION ${plugin_dest_dir} COMPONENT Runtime)
+
+#--------------------------------------------------------------------------------
+# install a qt.conf file
+# this inserts some cmake code into the install script to write the file
+INSTALL(CODE "
+    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
+    " COMPONENT Runtime)
+
+
+#--------------------------------------------------------------------------------
+# Use BundleUtilities to get all other dependencies for the application to work.
+# It takes a bundle or executable along with possible plugins and inspects it
+# for dependencies.  If they are not system dependencies, they are copied.
+
+# directories to look for dependencies
+SET(DIRS ${QT_LIBRARY_DIRS})
+
+# Now the work of copying dependencies into the bundle/package
+# The quotes are escaped and variables to use at install time have their $ escaped
+# An alternative is the do a configure_file() on a script and use install(SCRIPT  ...).
+# Note that the image plugins depend on QtSvg and QtXml, and it got those copied
+# over.
+INSTALL(CODE "
+    file(GLOB_RECURSE QTPLUGINS
+      \"\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/sqldrivers/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+    include(BundleUtilities)
+    fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
+    " COMPONENT Runtime)
+
+# To Create a package, one can run "cpack -G DragNDrop CPackConfig.cmake" on Mac OS X
+# where CPackConfig.cmake is created by including CPack
+# And then there's ways to customize this as well
+set(CPACK_BINARY_DRAGNDROP ON)
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_ROOT_DIR}/README")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Automated listening tests setup, evaluation and reporting")
+set(CPACK_PACKAGE_ICON ${PROJECT_RESOURCES})
+set(CPACK_PACKAGE_NAME "Eve")
+set(CPACK_PACKAGE_VENDOR "Pedro Silva")
+set(CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${EVE_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${EVE_VERSION_PATCH})
 include(CPack)
+
+# install (TARGETS Eve DESTINATION bin)
+# install (FILES ${APP_HEADERS} "${PROJECT_BINARY_DIR}/config.h" DESTINATION include/Eve)
+
+# set (CPACK_PACKAGE_NAME "${APP_NAME}")
+# set (CPACK_BUNDLE_NAME "${APP_NAME}")
+# set (CPACK_BUNDLE_PLIST Info.plist)
+# set (CPACK_BUNDLE_ICON TagTool.png)
+# set (CPACK_PACKAGE_CONTACT "Pedro Silva <pasilva@inescporto.pt>")
+# set (CPACK_PACKAGE_VENDOR "INESC Porto")
+# set (CPACK_PACKAGE_VERSION_MAJOR ${EVE_VERSION_MAJOR})
+# set (CPACK_PACKAGE_VERSION_MINOR ${EVE_VERSION_MINOR})
+# set (CPACK_PACKAGE_VERSION_PATCH ${EVE_VERSION_PATCH})
+# set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Automated listening tests setup, evaluation and reporting")
+# set (CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/../COPYING")
+# set (CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/../README")
+# include(CPack)
