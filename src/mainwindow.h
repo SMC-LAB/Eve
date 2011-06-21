@@ -1,7 +1,9 @@
+#include <QHBoxLayout>
 #include <QMainWindow>
 #include <QtDebug>
 #include <QLabel>
 #include "experiment.h"
+#include "userinterface.h"
 
 namespace Ui {
     class MainWindow;
@@ -23,9 +25,14 @@ private:
     Experiment *experiment_;
     Transport *transport_;
     Tagger *tagger_;
+    UserInterface *user_;
 
+    QString currentExperimentFileName_;
     mrs_string currentFileName_;
     QLabel *statusLabel_;
+
+    QHBoxLayout *rlayout_;
+    QHBoxLayout *llayout_;
                         
 private slots:
     void newExperiment();
@@ -35,4 +42,5 @@ private slots:
     void quit();
     void init();
     void updateStatusBar(mrs_string fileName, QTableView* ignoreMe);
+    void toggleFullScreen();
 };

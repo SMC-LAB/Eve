@@ -35,7 +35,9 @@ void Transport::init_()
     backend_             = new SimplePlayerBackend();
     mwr_                 = new MarsyasQt::MarSystemQtWrapper(backend_->getPlaybacknet());
     timer_               = new QTimer(this);
-
+    playOnce_            = false;
+    currentFile_         = "";
+    
     gainPtr_             = mwr_->getctrl("Gain/gain/mrs_real/gain");
     initAudioPtr_        = mwr_->getctrl("AudioSink/dest/mrs_bool/initAudio");
 
@@ -128,6 +130,13 @@ void Transport::play()
     }
 }
 
+void Transport::playOnce() 
+{
+    playOnce_ = true;
+    play();
+}
+
+
 void Transport::next()
 {
     setPos(START_POS);
@@ -161,7 +170,9 @@ void Transport::update()
 
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
-    emit fileChanged(file, ui_->playTable);
+
+    if (currentFile_ != file)
+        emit fileChanged(file, ui_->playTable);
 }
 
 void Transport::setPos(int val)
@@ -280,6 +291,13 @@ void Transport::populateDb_(QSqlDatabase db_, bool load)
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
 {
+
+   if (playOnce_) {
+        playOnce_ = false;
+        mwr_->pause();
+    }
+
+    currentFile_ = file;
     int row = collectionFilesMap_[file];
     table->selectRow(row);
 }

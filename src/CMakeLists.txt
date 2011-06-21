@@ -98,6 +98,7 @@ set(APP_SOURCES
   experiment.cpp
   util.cpp
   wizard.cpp
+  userinterface.cpp
   )
 
 set(APP_HEADERS
@@ -108,6 +109,7 @@ set(APP_HEADERS
   experiment.h
   util.h
   wizard.h
+  userinterface.h
   )
 
 set(APP_FORMS
@@ -116,10 +118,15 @@ set(APP_FORMS
   tagger.ui
   experiment.ui
   wizard.ui
+  userinterface.ui
   )
+
+set(APP_RESOURCES ../icons.qrc)
 
 qt4_wrap_cpp(APP_HEADERS_MOC ${APP_HEADERS})
 qt4_wrap_ui(APP_FORMS_HEADERS ${APP_FORMS})
+
+QT4_ADD_RESOURCES(APP_RESOURCES_HEADERS ${APP_RESOURCES})
 
 if (EVE_STATIC)
   set_target_properties(marsyas PROPERTIES IMPORTED_LOCATION ${MARSYAS_LIBRARY})
@@ -127,7 +134,7 @@ if (EVE_STATIC)
   set_target_properties(qsqlite PROPERTIES IMPORTED_LOCATION ${QSQLITE_LIBRARY})
 endif (EVE_STATIC)
 
-add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS})
+add_executable (${APP_NAME} WIN32 MACOSX_BUNDLE ${APP_SOURCES} ${APP_HEADERS_MOC} ${APP_FORMS_HEADERS} ${APP_RESOURCES_HEADERS})
 
 target_link_libraries (${APP_NAME} ${QT_LIBRARIES} ${EXTRA_LIBS} marsyas marsyasqt qsqlite)
 

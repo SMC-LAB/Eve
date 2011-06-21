@@ -5,6 +5,8 @@
 #include <QtSql>
 #include <QSqlRelationalTableModel>
 #include <QTableView>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 typedef std::string mrs_string;
 
@@ -31,6 +33,8 @@ protected:
 
 private:
     explicit Tagger(QWidget *parent = 0);
+    Tagger(Tagger const& copy);
+    Tagger& operator=(Tagger const& copy);
     Ui::Tagger *ui_;
     QSqlRelationalTableModel *tags_model_;
     QTableView *tags_table_;

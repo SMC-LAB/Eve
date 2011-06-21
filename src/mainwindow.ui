@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../icons.qrc">
+    <normaloff>:/resources/icon.svg</normaloff>:/resources/icon.svg</iconset>
+  </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
@@ -91,12 +95,12 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>&amp;Edit</string>
+     <string>&amp;View</string>
     </property>
-    <addaction name="actionPreferences"/>
-    <addaction name="actionTest"/>
+    <addaction name="actionAdmin"/>
+    <addaction name="actionUser"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="tearOffEnabled">
@@ -108,7 +112,7 @@
     <addaction name="actionAbout_Eve"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -160,8 +164,26 @@
     <string>Ctrl+N</string>
    </property>
   </action>
+  <action name="actionAdmin">
+   <property name="text">
+    <string>&amp;Admin</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionUser">
+   <property name="text">
+    <string>&amp;User</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

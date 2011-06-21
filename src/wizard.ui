@@ -13,8 +13,15 @@
   <property name="windowTitle">
    <string>Wizard</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../icons.qrc">
+    <normaloff>:/resources/icon.svg</normaloff>:/resources/icon.svg</iconset>
+  </property>
   <property name="wizardStyle">
    <enum>QWizard::ClassicStyle</enum>
+  </property>
+  <property name="options">
+   <set>QWizard::ExtendedWatermarkPixmap</set>
   </property>
   <property name="titleFormat">
    <enum>Qt::AutoText</enum>
@@ -441,6 +448,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

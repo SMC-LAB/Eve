@@ -51,6 +51,8 @@ private:
 
     QTimer *timer_;
 
+    bool playOnce_;
+    mrs_string playOnceFile_;
     map<mrs_string, int> collectionFilesMap_;
     mrs_string currentFile_;
 
@@ -74,6 +76,9 @@ private:
 
     MarControlPtr advancePtr_;
     MarControlPtr cindexPtr_;
+
+public slots:
+    void playOnce();
 
 private slots:
     void play();

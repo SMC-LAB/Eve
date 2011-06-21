@@ -11,10 +11,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui_->setupUi(this);
     createConnections_();
-    currentFileName_ = "";
-    experiment_ = NULL;
-    transport_ = NULL;
-    tagger_ = NULL;
+    currentFileName_           = "";
+    currentExperimentFileName_ = "";
+    experiment_                = Experiment::getInstance();
+    transport_                 = Transport::getInstance();
+    tagger_                    = Tagger::getInstance();
+    user_                      = UserInterface::getInstance();
 }
 
 MainWindow::~MainWindow()
@@ -25,14 +27,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::init() 
 {
-    static QHBoxLayout *llayout = new QHBoxLayout(ui_->groupBoxTransport);
+    llayout_ = new QHBoxLayout(ui_->groupBoxTransport);
     transport_ = experiment_->getTransport();
-    llayout->addWidget(transport_);
+    llayout_->addWidget(transport_);
     
-    static QHBoxLayout *rlayout = new QHBoxLayout(ui_->groupBoxTagger);
+    rlayout_ = new QHBoxLayout(ui_->groupBoxTagger);
     tagger_ = experiment_->getTagger();
     tagger_->initTagWidget();
-    rlayout->addWidget(tagger_);
+    rlayout_->addWidget(tagger_);
 
     map<QString, QString> subject = experiment_->getCurrentSubject();
     
@@ -52,12 +54,32 @@ void MainWindow::updateStatusBar(mrs_string fileName, QTableView* ignoreMe)
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->actionPreferences,     SIGNAL(triggered()), this, SLOT(preferences()));
+    connect(ui_->actionAdmin,           SIGNAL(triggered()), this, SLOT(openExperiment()));
     connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this, SLOT(about()));
     connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this, SLOT(newExperiment()));    
     connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this, SLOT(openExperiment()));
     connect(ui_->actionQuit,            SIGNAL(triggered()), this, SLOT(quit()));
+    connect(ui_->actionUser,            SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
 }
+
+void MainWindow::toggleFullScreen() 
+{ 
+    if (user_->isFullScreen()) {
+        user_->showNormal();
+        user_->hide();
+        user_->deinit();
+        rlayout_->addWidget(tagger_);
+        tagger_->show();            
+    }
+    else {
+        user_->showFullScreen();
+        user_->init();
+        rlayout_->removeWidget(tagger_);        
+        tagger_->show();
+        user_->show();
+    }
+}
+
 
 void MainWindow::quit()
 {
@@ -86,26 +108,32 @@ void MainWindow::newExperiment()
     if (!fileName.isEmpty())
     {
         QFile::remove(fileName);
-        experiment_ = Experiment::getInstance();
+        // experiment_ = Experiment::getInstance();
         experiment_->init(fileName, true);
         experiment_->show();
         connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
+        currentExperimentFileName_ = fileName;
     }
 }
 
 void MainWindow::openExperiment()
 {
-    QString fileName = QFileDialog::getOpenFileName(
-        this,
-        tr("Open Experiment"), 
-        tr("SQLite databases (*.db, *.sqlite, *.sqlite3)"));
+    QString fileName;
+
+    if ((fileName = currentExperimentFileName_).isEmpty()) {
+        fileName = QFileDialog::getOpenFileName(
+            this,
+            tr("Open Experiment"), 
+            tr("SQLite databases (*.db, *.sqlite, *.sqlite3)"));
+    }
 
     if (!fileName.isEmpty())
     {
-        experiment_ = Experiment::getInstance();
+        // experiment_ = Experiment::getInstance();
         experiment_->init(fileName, false);
         experiment_->openCollectionFile();
         experiment_->show();
         connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
+        currentExperimentFileName_ = fileName;
     }
 }

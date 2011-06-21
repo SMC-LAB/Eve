@@ -4,8 +4,6 @@
 #include "experiment.h"
 #include "transport.h"
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 
 Tagger::Tagger(QWidget *parent) :
@@ -106,6 +104,19 @@ void Tagger::initTagWidget()
     ui_->verticalLayout_3->removeWidget(tags_table_);
     Util::removeLayoutChildren(ui_->verticalLayout_3, 2);
     
+    int maxTagWidth = getMaxTagWidth_();
+    
+    QWidget *labelWidget = new QWidget();
+    QHBoxLayout *labelLayout = new QHBoxLayout(labelWidget);
+    QLabel *minLabel = new QLabel("Not at all");
+    QLabel *maxLabel = new QLabel("Entirely");
+
+    labelLayout->addWidget(minLabel);
+    labelLayout->addStretch();
+    labelLayout->addWidget(maxLabel);
+    
+    ui_->verticalLayout_3->addWidget(labelWidget);
+
     while (getTags.next())
     {
         QString tagName = getTags.value(1).toString();
@@ -133,7 +144,7 @@ void Tagger::initTagWidget()
 
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
         
-        QLabel *name = new QLabel(QString("%1").arg(tagName, getMaxTagWidth_()));
+        QLabel *name = new QLabel(QString("%1").arg(tagName, maxTagWidth));
         QLabel *description = new QLabel(tagDesc);
         description->hide();
         
@@ -143,20 +154,32 @@ void Tagger::initTagWidget()
         QLabel *min = new QLabel(QString::number(tagMinVal));
         QLabel *max = new QLabel(QString::number(tagMaxVal));
 
-        QWidget *nestedWidget = new QWidget();
-        QHBoxLayout *hlayout = new QHBoxLayout(nestedWidget);
+        QWidget *completeWidget = new QWidget();
+        QVBoxLayout *completeLayout = new QVBoxLayout(completeWidget);
         
-        nestedWidget->setAttribute(Qt::WA_Hover, true);
-        nestedWidget->installEventFilter(this);
+        completeWidget->setAttribute(Qt::WA_Hover, true);
+        completeWidget->installEventFilter(this);
+        
+        QWidget *labelWidget = new QWidget();
+        QHBoxLayout *labelLayout = new QHBoxLayout(labelWidget);
 
-        hlayout->addWidget(min);
-        hlayout->addWidget(slider);
-        hlayout->addWidget(max);
-        hlayout->addWidget(name);
-        hlayout->addWidget(description);
+        QWidget *sliderWidget = new QWidget();
+        QHBoxLayout *sliderLayout = new QHBoxLayout(sliderWidget);
+
+        labelLayout->addStretch();
+        labelLayout->addWidget(name);
+        labelLayout->addWidget(description);
+        labelLayout->addStretch();
+
+        sliderLayout->addWidget(min);
+        sliderLayout->addWidget(slider);
+        sliderLayout->addWidget(max);
+
+        completeLayout->addWidget(labelWidget);
+        completeLayout->addWidget(sliderWidget);
 
         tags_table_->hide();
-        ui_->verticalLayout_3->addWidget(nestedWidget);
+        ui_->verticalLayout_3->addWidget(completeWidget);
     }
     
     ui_->verticalLayout_3->addStretch();
