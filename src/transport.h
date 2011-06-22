@@ -27,6 +27,8 @@ public:
     void open(QString fileName);
     void open();
     void close();
+    void play();
+    void pause();
     string getCollectionFile();
     int getCurrentFileId();
     QString getCurrentFile();
@@ -81,7 +83,7 @@ public slots:
     void playOnce();
 
 private slots:
-    void play();
+    void togglePlay();
     void previous();
     void next();
     void setGain(int val);

@@ -64,7 +64,7 @@ void Transport::init_()
 
 void Transport::createConnections_()
 {
-    connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(play()));
+    connect(ui_->playButton,     SIGNAL(clicked()),        this, SLOT(togglePlay()));
     connect(ui_->previousButton, SIGNAL(clicked()),        this, SLOT(previous()));
     connect(ui_->nextButton,     SIGNAL(clicked()),        this, SLOT(next()));
     connect(ui_->gainSlider,     SIGNAL(sliderMoved(int)), this, SLOT(setGain(int)));
@@ -117,7 +117,7 @@ void Transport::close()
     timer_->stop();
 }
 
-void Transport::play()
+void Transport::togglePlay()
 {
     if (activePtr_->to<mrs_bool>()){
         mwr_->pause();
@@ -127,6 +127,20 @@ void Transport::play()
     {
         mwr_->play();
         ui_->playButton->setText("&Pause");
+    }
+}
+
+void Transport::play()
+{
+    mwr_->play();
+    ui_->playButton->setText("&Pause");
+}
+
+void Transport::pause()
+{
+    if (activePtr_->to<mrs_bool>()){
+        mwr_->pause();
+        ui_->playButton->setText("&Play");        
     }
 }
 
@@ -185,8 +199,6 @@ void Transport::setPos(int val)
 
 void Transport::setGain(int val)
 {
-    // FIXME: Gain setting stopped working
-    //        updctrl is working fine - don't know what problem is
     float fval = val / 100.0f;
     mwr_->updctrl(gainPtr_, fval);
     emit sliderChanged(val, ui_->gainSlider);
