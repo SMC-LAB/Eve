@@ -10,13 +10,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
-    createConnections_();
     currentFileName_           = "";
     currentExperimentFileName_ = "";
     experiment_                = Experiment::getInstance();
     transport_                 = Transport::getInstance();
     tagger_                    = Tagger::getInstance();
     user_                      = UserInterface::getInstance();
+    createConnections_();
 }
 
 MainWindow::~MainWindow()
@@ -54,7 +54,7 @@ void MainWindow::updateStatusBar(mrs_string fileName, QTableView* ignoreMe)
 
 void MainWindow::createConnections_()
 {
-    connect(ui_->actionAdmin,           SIGNAL(triggered()), this, SLOT(openExperiment()));
+    connect(ui_->actionAdmin,           SIGNAL(triggered()), experiment_, SLOT(show()));
     connect(ui_->actionAbout_Eve,       SIGNAL(triggered()), this, SLOT(about()));
     connect(ui_->actionNew_Experiment,  SIGNAL(triggered()), this, SLOT(newExperiment()));    
     connect(ui_->actionOpen_Experiment, SIGNAL(triggered()), this, SLOT(openExperiment()));
@@ -132,8 +132,9 @@ void MainWindow::openExperiment()
         // experiment_ = Experiment::getInstance();
         experiment_->init(fileName, false);
         experiment_->openCollectionFile();
-        experiment_->show();
-        connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
+        //experiment_->show();
+        //connect(experiment_, SIGNAL(experimentConfigured()), this, SLOT(init()));
+        init();
         currentExperimentFileName_ = fileName;
     }
 }
