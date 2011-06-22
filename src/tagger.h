@@ -48,12 +48,13 @@ private slots:
     void setTagInfo(QString name, QString description);
     void updateValue(int val);
     void updateSliders(mrs_string fileName, QTableView* ignoreMe);
+    void updateSlider(QString tag, int value, int tagMinVal);
 
 signals:
     void hoverOverTag(QString name, QString description);
     void sliderChanged(int value);
     void updatedValue(QString tag, int value, QString note);
-
+    void updatedValue(QString tag, int value, int tagMinVal);
 };
 
 #endif // TAGGER_H

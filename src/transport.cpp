@@ -147,6 +147,8 @@ void Transport::pause()
 void Transport::playOnce() 
 {
     playOnce_ = true;
+    mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
+    emit fileChanged(file, ui_->playTable);
     play();
 }
 
@@ -185,8 +187,15 @@ void Transport::update()
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
 
-    if (currentFile_ != file)
-        emit fileChanged(file, ui_->playTable);
+    if (currentFile_ != file && activePtr_->to<mrs_bool>()) {   
+        if (playOnce_) {
+            playOnce_ = false;
+            mwr_->pause();
+        }
+        else {
+            emit fileChanged(file, ui_->playTable);
+        }
+    }
 }
 
 void Transport::setPos(int val)
@@ -303,12 +312,6 @@ void Transport::populateDb_(QSqlDatabase db_, bool load)
 
 void Transport::setCurrentFile(mrs_string file, QTableView *table)
 {
-
-   if (playOnce_) {
-        playOnce_ = false;
-        mwr_->pause();
-    }
-
     currentFile_ = file;
     int row = collectionFilesMap_[file];
     table->selectRow(row);

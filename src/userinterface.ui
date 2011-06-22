@@ -60,13 +60,13 @@
     </spacer>
    </item>
    <item row="1" column="0">
-    <spacer name="horizontalSpacer_5">
+    <spacer name="horizontalSpacer_6">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>104</width>
+       <width>106</width>
        <height>20</height>
       </size>
      </property>
@@ -75,12 +75,12 @@
    <item row="1" column="1" colspan="3">
     <layout class="QHBoxLayout" name="verticalLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
+      <enum>QLayout::SetNoConstraint</enum>
      </property>
     </layout>
    </item>
    <item row="1" column="4">
-    <spacer name="horizontalSpacer_6">
+    <spacer name="horizontalSpacer_7">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -114,7 +114,10 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Next</string>
+      <string>&amp;Next</string>
+     </property>
+     <property name="shortcut">
+      <string>Ctrl+N</string>
      </property>
     </widget>
    </item>

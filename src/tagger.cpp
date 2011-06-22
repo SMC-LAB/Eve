@@ -48,31 +48,35 @@ void Tagger::initTagTable()
 
 void Tagger::updateSliders(mrs_string fileName, QTableView* ignoreMe)
 {
-    if (fileName == currentFileName_)
-    {
-        return;
-    }
-
-    currentFileName_ = fileName;
-
     QSqlDatabase db_ = QSqlDatabase::database("Main");    
     QSqlQuery getTags("SELECT * FROM Tags;", db_);
-
+    
     while (getTags.next())
     {
         QString tagName = getTags.value(1).toString();
         int tagMinVal = getTags.value(2).toInt();
-        QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tagName);
-            
-        if (int rating = Experiment::getInstance()->getValue(tagName))
-        {                        
-            slider->setValue(rating);
-        }
-        else
-        {
-            slider->setValue(tagMinVal);
-        }
+
+        updateSlider(tagName, Experiment::getInstance()->getValue(tagName), tagMinVal);
     }       
+}
+
+void Tagger::updateSlider(QString tag, int value, int tagMinVal)
+{
+    QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tag);
+    QLabel *sideLabel = ui_->scrollAreaWidgetContents->findChild<QLabel *>(tag);
+
+    if (value)
+    {                        
+        slider->setValue(value);
+        slider->setDisabled(true);
+        sideLabel->setText(QString::number(value));
+    }
+    else
+    {
+        slider->setValue(tagMinVal);
+        slider->setDisabled(false);
+        sideLabel->setText("Not yet rated");
+    }
 }
 
 int Tagger::getMaxTagWidth_()
@@ -106,6 +110,8 @@ void Tagger::initTagWidget()
     
     int maxTagWidth = getMaxTagWidth_();
     
+    ui_->verticalLayout_3->addStretch();
+
     QWidget *labelWidget = new QWidget();
     QHBoxLayout *labelLayout = new QHBoxLayout(labelWidget);
     QLabel *minLabel = new QLabel("Not at all");
@@ -143,7 +149,8 @@ void Tagger::initTagWidget()
         }
 
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
-        
+        connect(this, SIGNAL(updatedValue(QString, int, int)), this, SLOT(updateSlider(QString, int, int)));
+
         QLabel *name = new QLabel(QString("%1").arg(tagName, maxTagWidth));
         QLabel *description = new QLabel(tagDesc);
         description->hide();
@@ -166,14 +173,17 @@ void Tagger::initTagWidget()
         QWidget *sliderWidget = new QWidget();
         QHBoxLayout *sliderLayout = new QHBoxLayout(sliderWidget);
 
+        QLabel *sideLabel = new QLabel("Not yet rated");
+        sideLabel->setObjectName(tagName);
+
         labelLayout->addStretch();
         labelLayout->addWidget(name);
         labelLayout->addWidget(description);
         labelLayout->addStretch();
 
-        sliderLayout->addWidget(min);
+        //sliderLayout->addWidget(min);
         sliderLayout->addWidget(slider);
-        sliderLayout->addWidget(max);
+        sliderLayout->addWidget(sideLabel);
 
         completeLayout->addWidget(labelWidget);
         completeLayout->addWidget(sliderWidget);
@@ -194,6 +204,7 @@ void Tagger::updateValue(int value)
     //ui_->currentTag->setText(name + " - " + QString::number(value));
 
     emit updatedValue(name, value, "");
+    emit updatedValue(name, value, 0);
 }
 
 

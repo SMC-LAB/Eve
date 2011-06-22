@@ -78,7 +78,8 @@ private:
 
     MarControlPtr advancePtr_;
     MarControlPtr cindexPtr_;
-
+    MarControlPtr currentCollectionNewFilePtr_;
+                                              
 public slots:
     void playOnce();
 
