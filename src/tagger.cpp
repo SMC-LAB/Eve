@@ -68,7 +68,7 @@ void Tagger::updateSlider(QString tag, int value, int tagMinVal)
     if (value)
     {                        
         slider->setValue(value);
-        slider->setDisabled(true);
+        //slider->setDisabled(true);
         sideLabel->setText(QString::number(value));
     }
     else
