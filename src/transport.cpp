@@ -151,14 +151,14 @@ void Transport::pause()
     emit(isPaused(true));
 
 }
+
 void Transport::playOnce() 
 {
     playOnce_ = true;
     play();
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
-    emit fileChanged(file, ui_->playTable);
+    //emit fileChanged(file, ui_->playTable);
 }
-
 
 void Transport::next()
 {
@@ -206,6 +206,7 @@ void Transport::update()
             pause();
         }
     }
+
 }
 void Transport::setPos(int val)
 {
