@@ -114,10 +114,10 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>&amp;Next</string>
+      <string>&amp;Start</string>
      </property>
      <property name="shortcut">
-      <string>Ctrl+N</string>
+      <string>Space</string>
      </property>
     </widget>
    </item>

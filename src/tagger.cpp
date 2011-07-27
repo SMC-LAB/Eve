@@ -58,7 +58,6 @@ void Tagger::updateSliders(mrs_string fileName, QTableView* ignoreMe)
 
         updateSlider(tagName, Experiment::getInstance()->getValue(tagName), tagMinVal);
     }
-    userInterfaceNextButtonPressed();
 }
 
 void Tagger::updateSlider(QString tag, int value, int tagMinVal)
@@ -66,16 +65,16 @@ void Tagger::updateSlider(QString tag, int value, int tagMinVal)
     QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tag);
     QLabel *sideLabel = ui_->scrollAreaWidgetContents->findChild<QLabel *>(tag);
 
-    if (value)
-    {                        
+    // if (value)
+    // {                        
         slider->setValue(value);
         sideLabel->setText(QString::number(value));
-    }
-    else
-    {
-        slider->setValue(tagMinVal);
-        sideLabel->setText("Not yet rated");
-    }
+    // }
+    // else
+    // {
+    //     slider->setValue(tagMinVal);
+    //     sideLabel->setText("Not yet rated");
+    // }
 }
 
 void Tagger::userInterfaceNextButtonPressed() 
