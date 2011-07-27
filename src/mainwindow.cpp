@@ -41,6 +41,10 @@ void MainWindow::init()
     statusLabel_ = new QLabel(QString("Subject: " + subject["Name"]));
     statusBar()->addWidget(statusLabel_);
     connect(transport_, SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(updateStatusBar(mrs_string, QTableView*)));
+
+    ui_->menuView->setDisabled(false);
+    ui_->actionAdmin->setDisabled(false);
+    ui_->actionUser->setDisabled(false); 
 }
 
 void MainWindow::updateStatusBar(mrs_string fileName, QTableView* ignoreMe)
@@ -104,7 +108,7 @@ void MainWindow::newExperiment()
 {
     QString fileName = QFileDialog::getSaveFileName(
         this,
-        tr("Open Experiment"));
+        tr("Ne wExperiment"));
 
     if (!fileName.isEmpty())
     {
