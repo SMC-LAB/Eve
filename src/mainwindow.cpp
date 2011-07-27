@@ -81,6 +81,7 @@ void MainWindow::toggleFullScreen()
         user_->init();
         rlayout_->removeWidget(tagger_);        
         tagger_->show();
+        //tagger_->userInterfaceNextButtonPressed();
         user_->show();
     }
 }

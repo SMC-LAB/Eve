@@ -21,6 +21,7 @@ void UserInterface::init()
     ui->verticalLayout->insertWidget(1, tagger_);
 
     Transport *transport_ = Transport::getInstance();
+    connect(transport_, SIGNAL(isPaused(bool)), this, SLOT(transportPaused(bool)));
     connect(ui->pushButtonNext, SIGNAL(clicked()), transport_, SLOT(playOnce()));
 }
 
@@ -30,3 +31,14 @@ void UserInterface::deinit()
     ui->verticalLayout->insertWidget(1, tagger_);
 }
 
+void UserInterface::transportPaused(bool isPaused) 
+{
+    if (isPaused) {
+        ui->pushButtonNext->setText("Next");
+        ui->pushButtonNext->setDisabled(false);
+    }
+    else {
+        ui->pushButtonNext->setText("Wait");
+        ui->pushButtonNext->setDisabled(true);
+    }
+}

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset>
     <normaloff>:/resources/icon.svg</normaloff>:/resources/icon.svg</iconset>
   </property>
   <property name="windowOpacity">
@@ -96,6 +96,9 @@
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>&amp;View</string>
     </property>
@@ -165,6 +168,9 @@
    </property>
   </action>
   <action name="actionAdmin">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Admin</string>
    </property>
@@ -173,6 +179,9 @@
    </property>
   </action>
   <action name="actionUser">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;User</string>
    </property>
@@ -182,8 +191,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -8,7 +8,7 @@
 
 #define START_POS 0
 #define START_GAIN 50
-#define UPDATE_FREQ 250
+#define UPDATE_FREQ 0.05
 #define SAMPLES_TO_TICKS(pos_, size_) ((int) ((100.0f * (pos_)) / (size_)))
 #define SAMPLES_TO_SECS(pos_, freq_) ((int) ((pos_) / (freq_)))
 
@@ -53,13 +53,18 @@ void Transport::init_()
     numFilesPtr_         = mwr_->getctrl("SoundFileSource/src/mrs_natural/numFiles");
     allfilenamesPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_string/allfilenames");
     currentlyPlayingPtr_ = mwr_->getctrl("SoundFileSource/src/mrs_string/currentlyPlaying");
-
+    previouslyPlayingPtr_= mwr_->getctrl("SoundFileSource/src/mrs_string/previouslyPlaying");
+    
     nLabelsPtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/nLabels");
     labelNamesPtr_       = mwr_->getctrl("SoundFileSource/src/mrs_string/labelNames");
     currentLabelPtr_     = mwr_->getctrl("SoundFileSource/src/mrs_natural/currentLabel");
 
     advancePtr_          = mwr_->getctrl("SoundFileSource/src/mrs_natural/advance");
     cindexPtr_           = mwr_->getctrl("SoundFileSource/src/mrs_natural/cindex");
+    currentLastTickWithData_ = mwr_->getctrl("SoundFileSource/src/mrs_bool/currentLastTickWithData");
+
+    currentHasDataPtr_      = mwr_->getctrl("SoundFileSource/src/mrs_bool/currentHasData");
+
 }
 
 void Transport::createConnections_()
@@ -120,20 +125,21 @@ void Transport::close()
 void Transport::togglePlay()
 {
     if (activePtr_->to<mrs_bool>()){
-        mwr_->pause();
-        ui_->playButton->setText("&Play");        
+        pause();
     }
     else
     {
-        mwr_->play();
-        ui_->playButton->setText("&Pause");
+        play();
     }
 }
 
 void Transport::play()
 {
-    mwr_->play();
-    ui_->playButton->setText("&Pause");
+    if (!activePtr_->to<mrs_bool>()){
+        mwr_->play();
+        ui_->playButton->setText("&Pause");
+    }
+    emit(isPaused(false));
 }
 
 void Transport::pause()
@@ -142,19 +148,22 @@ void Transport::pause()
         mwr_->pause();
         ui_->playButton->setText("&Play");        
     }
-}
+    emit(isPaused(true));
 
+}
 void Transport::playOnce() 
 {
     playOnce_ = true;
+    play();
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
     emit fileChanged(file, ui_->playTable);
-    play();
 }
 
 
 void Transport::next()
 {
+    qDebug() << "next";
+    
     setPos(START_POS);
     mwr_->updctrl(advancePtr_, 1);
 }
@@ -169,7 +178,10 @@ void Transport::update()
 {
     if (!hasDataPtr_->to<mrs_bool>())
     {
+        qDebug() << "Done";
+        
         close();
+        exit(0);
     }
 
     mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
@@ -187,17 +199,14 @@ void Transport::update()
     emit sliderChanged(val, ui_->posSlider);
     emit timeChanged(secs, ui_->posTime);
 
-    if (currentFile_ != file && activePtr_->to<mrs_bool>()) {   
+    if (currentLastTickWithData_->to<mrs_bool>())
+    {
         if (playOnce_) {
             playOnce_ = false;
-            mwr_->pause();
-        }
-        else {
-            emit fileChanged(file, ui_->playTable);
+            pause();
         }
     }
 }
-
 void Transport::setPos(int val)
 {
     float fval = val / 100.0f;

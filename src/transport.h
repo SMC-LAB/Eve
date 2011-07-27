@@ -71,7 +71,8 @@ private:
     MarControlPtr numFilesPtr_;
     MarControlPtr allfilenamesPtr_;
     MarControlPtr currentlyPlayingPtr_;
-    
+    MarControlPtr previouslyPlayingPtr_; 
+   
     MarControlPtr nLabelsPtr_;
     MarControlPtr labelNamesPtr_;
     MarControlPtr currentLabelPtr_;
@@ -79,6 +80,10 @@ private:
     MarControlPtr advancePtr_;
     MarControlPtr cindexPtr_;
     MarControlPtr currentCollectionNewFilePtr_;
+    MarControlPtr currentLastTickWithData_;
+
+    MarControlPtr currentHasDataPtr_;
+                           
                                               
 public slots:
     void playOnce();
@@ -98,6 +103,7 @@ signals:
     void sliderChanged(int val, QSlider *slider);
     void timeChanged(int val, QTimeEdit *time);
     void fileChanged(mrs_string file, QTableView *table);
+    void isPaused(bool flag);
 };
 
-#endif // TRANSPORT_H
+#endif // TRANSPORT_

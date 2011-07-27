@@ -49,7 +49,11 @@ private slots:
     void updateValue(int val);
     void updateSliders(mrs_string fileName, QTableView* ignoreMe);
     void updateSlider(QString tag, int value, int tagMinVal);
+    void transportPaused(bool isPaused);
 
+public slots:
+    void userInterfaceNextButtonPressed();
+    
 signals:
     void hoverOverTag(QString name, QString description);
     void sliderChanged(int value);

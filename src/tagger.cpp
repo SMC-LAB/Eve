@@ -57,7 +57,8 @@ void Tagger::updateSliders(mrs_string fileName, QTableView* ignoreMe)
         int tagMinVal = getTags.value(2).toInt();
 
         updateSlider(tagName, Experiment::getInstance()->getValue(tagName), tagMinVal);
-    }       
+    }
+    userInterfaceNextButtonPressed();
 }
 
 void Tagger::updateSlider(QString tag, int value, int tagMinVal)
@@ -68,14 +69,44 @@ void Tagger::updateSlider(QString tag, int value, int tagMinVal)
     if (value)
     {                        
         slider->setValue(value);
-        //slider->setDisabled(true);
         sideLabel->setText(QString::number(value));
     }
     else
     {
         slider->setValue(tagMinVal);
-        slider->setDisabled(false);
         sideLabel->setText("Not yet rated");
+    }
+}
+
+void Tagger::userInterfaceNextButtonPressed() 
+{
+    QSqlDatabase db_ = QSqlDatabase::database("Main");    
+    QSqlQuery getTags("SELECT * FROM Tags;", db_);
+
+    while (getTags.next())
+    {
+        QString tagName = getTags.value(1).toString();
+
+        QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tagName);
+        QLabel *label   = ui_->scrollAreaWidgetContents->findChild<QLabel *>(tagName);
+
+        slider->setValue(0);
+        label->setText("Not yet rated");
+    }
+}
+
+void Tagger::transportPaused(bool isPaused)
+{
+    QList<QSlider *> sliders = ui_->scrollAreaWidgetContents->findChildren<QSlider *>();
+
+    for (int i = 0; i < sliders.size(); ++i) {
+        
+        if (isPaused) {
+            sliders.at(i)->setDisabled(false);
+        }
+        else {
+            sliders.at(i)->setDisabled(true);
+        }
     }
 }
 
@@ -151,7 +182,7 @@ void Tagger::initTagWidget()
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(updateValue(int)));
         connect(this, SIGNAL(updatedValue(QString, int, int)), this, SLOT(updateSlider(QString, int, int)));
 
-        QLabel *name = new QLabel(QString("%1").arg(tagName, maxTagWidth));
+        QLabel *name = new QLabel(tagName);
         QLabel *description = new QLabel(tagDesc);
         description->hide();
         
@@ -181,7 +212,6 @@ void Tagger::initTagWidget()
         labelLayout->addWidget(description);
         labelLayout->addStretch();
 
-        //sliderLayout->addWidget(min);
         sliderLayout->addWidget(slider);
         sliderLayout->addWidget(sideLabel);
 
@@ -196,12 +226,12 @@ void Tagger::initTagWidget()
 
     connect(this, SIGNAL(hoverOverTag(QString, QString)), this, SLOT(setTagInfo(QString, QString)));
     connect(Transport::getInstance(), SIGNAL(fileChanged(mrs_string, QTableView*)), this, SLOT(updateSliders(mrs_string, QTableView*)));
+    connect(Transport::getInstance(), SIGNAL(isPaused(bool)), this, SLOT(transportPaused(bool)));
 }
 
 void Tagger::updateValue(int value)
 {
     QString name = ui_->currentTag->text();
-    //ui_->currentTag->setText(name + " - " + QString::number(value));
 
     emit updatedValue(name, value, "");
     emit updatedValue(name, value, 0);

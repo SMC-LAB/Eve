@@ -21,12 +21,18 @@ public:
 
     void init();
     void deinit();
+    void setNextButtonLabel(QString label);
+    void setNextButtonAvailability(bool flag);
+
+private slots:
+    void transportPaused(bool isPaused);
     
 private:
     Ui::UserInterface *ui;
     explicit UserInterface(QWidget *parent = 0);
     UserInterface(UserInterface const& copy);
     UserInterface& operator=(UserInterface const& copy);
+
 };
 
 #endif // USERINTERFACE_H
