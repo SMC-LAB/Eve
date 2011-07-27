@@ -177,6 +177,8 @@ void Transport::update()
 {
     if (!hasDataPtr_->to<mrs_bool>())
     {
+        mrs_string file = currentlyPlayingPtr_->to<mrs_string>();
+        emit fileChanged(file, ui_->playTable);
         close();
         exit(0);
     }
