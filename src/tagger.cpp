@@ -65,16 +65,8 @@ void Tagger::updateSlider(QString tag, int value, int tagMinVal)
     QSlider *slider = ui_->scrollAreaWidgetContents->findChild<QSlider *>(tag);
     QLabel *sideLabel = ui_->scrollAreaWidgetContents->findChild<QLabel *>(tag);
 
-    if (value)
-    {                        
-        slider->setValue(value);
-        sideLabel->setText(QString::number(value));
-    }
-    else
-    {
-        slider->setValue(tagMinVal);
-        sideLabel->setText("Not yet rated");
-    }
+    slider->setValue(value);
+    sideLabel->setText(QString::number(value));
 }
 
 void Tagger::userInterfaceNextButtonPressed() 
@@ -90,7 +82,7 @@ void Tagger::userInterfaceNextButtonPressed()
         QLabel *label   = ui_->scrollAreaWidgetContents->findChild<QLabel *>(tagName);
 
         slider->setValue(0);
-        label->setText("Not yet rated");
+        label->setText(QString::number(0));
     }
 }
 

@@ -8,7 +8,7 @@
 
 #define START_POS 0
 #define START_GAIN 50
-#define UPDATE_FREQ 0.05
+#define UPDATE_FREQ 0.01
 #define SAMPLES_TO_TICKS(pos_, size_) ((int) ((100.0f * (pos_)) / (size_)))
 #define SAMPLES_TO_SECS(pos_, freq_) ((int) ((pos_) / (freq_)))
 
